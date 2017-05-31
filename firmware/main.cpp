@@ -9,7 +9,6 @@
 #include "dxl_usb_serial.h"
 #include "dxl_servo.h"
 #include "dxl_serial.h"
-#include "dxl_proxy.h"
 #include "dxl_magnetic_coder.h"
 #include "dxl_gy85.h"
 #include "dxl_pins.h"
@@ -74,9 +73,6 @@ void setup()
 
     // Add an ADC coder on the bus, ID 235
     // dxl_coder_init(&slaves[k++], 3, 4, 5, 235);
-
-    // Adds the Dynamixel proxy on the bus, id 245
-    // dxl_proxy_init(&slaves[k++], &dxl_serial, 245);
    
     // Adding all slaves on the b us
     for (k--; k>=0; k--) {

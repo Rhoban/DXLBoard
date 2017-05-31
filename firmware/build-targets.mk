@@ -2,7 +2,7 @@
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
 SRC_FILES := main.cpp coder.cpp dxl.cpp dxl_usb_serial.cpp dxl_protocol.cpp \
-    dxl_serial.cpp dxl_servo.cpp dxl_proxy.cpp dxl_coder.cpp \
+    dxl_serial.cpp dxl_servo.cpp dxl_coder.cpp \
     dxl_magnetic_coder.cpp dxl_imu.cpp dxl_pins.cpp dxl_gy85.cpp gy85.cpp
 OBJ_FILES = $(addprefix $(BUILD_PATH)/,$(SRC_FILES:.cpp=.o))
 
