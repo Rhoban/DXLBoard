@@ -40,9 +40,7 @@ struct dxl_device
 {
     void (*tick)(volatile struct dxl_device *self);
     void (*process)(volatile struct dxl_device *self, volatile struct dxl_packet *packet);
-    void (*process_redirected)(volatile struct dxl_device *self, volatile struct dxl_device *from, volatile struct dxl_packet *packet);
     volatile struct dxl_packet packet;
-    volatile struct dxl_device *redirect_packets;
     volatile struct dxl_device *next;
     volatile void *data;
 };

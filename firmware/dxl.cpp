@@ -108,8 +108,6 @@ void dxl_device_init(volatile struct dxl_device *device)
     device->data = NULL;
     device->tick = NULL;
     device->process = NULL;
-    device->redirect_packets = NULL;
-    device->process_redirected = NULL;
     dxl_packet_init(&device->packet);
 }
 
@@ -145,11 +143,6 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
-        for (slave = bus->slaves; slave != NULL; slave = slave->next) {
-            if (slave->redirect_packets == NULL) {
-                slave->process(slave, master_packet);
-            }
-        }
         master_packet->process = false;
     }
 
@@ -160,13 +153,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
         }
 
         if (slave->packet.process) {
-            if (slave->redirect_packets != NULL) {
-                if (slave->redirect_packets->process_redirected != NULL) {
-                    slave->redirect_packets->process_redirected((volatile struct dxl_device *)slave->redirect_packets, slave, &slave->packet);
-                }
-            } else {
-                bus->master->process(bus->master, &slave->packet);
-            }
+            bus->master->process(bus->master, &slave->packet);
 
             slave->packet.process = false;
         }

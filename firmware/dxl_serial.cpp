@@ -326,7 +326,7 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
                 }
             }
         } else {
-            if (self->redirect_packets == NULL && baudrate != usb_cdcacm_get_baud()) {
+            if (baudrate != usb_cdcacm_get_baud()) {
                 // baudrate = usb_cdcacm_get_baud();
                 // initSerial(serial, baudrate);
             }
