@@ -2,7 +2,7 @@
 
 The board dimensions are depicted here:
 
-[Dimensions](/docs/dimensions.png)
+![Dimensions](/docs/dimensions.png)
 
 ## IMU
 
