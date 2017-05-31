@@ -24,7 +24,7 @@ make install
 ## How does it works
 
 The board will appear as a virtual serial port (typically `/dev/ttyACM0` on linux).
-You can send dynamixel packet through it.
+You can directly send dynamixel packet through it.
 
 ## Sync Read
 
