@@ -2492,13 +2492,13 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="P+10" library="supply1" deviceset="VCC" device=""/>
 <part name="C2" library="SparkFun-Passives" deviceset="CAP_POL" device="PTH2"/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
-<part name="R1" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
-<part name="R2" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
-<part name="R3" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
+<part name="R1" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
+<part name="R2" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
+<part name="R3" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
 <part name="P+16" library="supply1" deviceset="VCC" device=""/>
 <part name="CA" library="rhoban" deviceset="C_EU" device="-100NF"/>
-<part name="R8S" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="20"/>
+<part name="R8S" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
 <part name="USB" library="rhoban" deviceset="CONNEC_1X04" device=""/>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
 <part name="P+5" library="supply1" deviceset="VCC" device=""/>
@@ -2509,7 +2509,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="R8" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
 <part name="R9" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
-<part name="R4" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
+<part name="R4" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="P+1" library="supply1" deviceset="VCC" device=""/>
 <part name="GPIO1" library="rhoban" deviceset="CONNEC_1X09" device=""/>
 <part name="R10" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="2K"/>
@@ -2525,15 +2525,15 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="P+3" library="supply1" deviceset="VCC" device=""/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
 <part name="P+4" library="supply1" deviceset="VCC" device=""/>
-<part name="R12" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
-<part name="R13" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
-<part name="R14" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
+<part name="R12" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
+<part name="R13" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
+<part name="R14" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
 <part name="P+6" library="supply1" deviceset="VCC" device=""/>
 <part name="CA1" library="rhoban" deviceset="C_EU" device="-100NF"/>
-<part name="R7S1" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="20"/>
-<part name="R8S1" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="20"/>
-<part name="R15" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
+<part name="R7S1" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
+<part name="R8S1" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
+<part name="R15" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="P+11" library="supply1" deviceset="VCC" device=""/>
 <part name="R16" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="2K"/>
 <part name="R17" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
@@ -2547,21 +2547,21 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="P+13" library="supply1" deviceset="VCC" device=""/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="P+14" library="supply1" deviceset="VCC" device=""/>
-<part name="R18" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
-<part name="R19" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
-<part name="R20" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
+<part name="R18" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
+<part name="R19" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
+<part name="R20" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
 <part name="P+15" library="supply1" deviceset="VCC" device=""/>
 <part name="CA2" library="rhoban" deviceset="C_EU" device="-100NF"/>
-<part name="R7S2" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="20"/>
-<part name="R8S2" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="20"/>
-<part name="R21" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
+<part name="R7S2" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
+<part name="R8S2" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
+<part name="R21" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="P+17" library="supply1" deviceset="VCC" device=""/>
 <part name="R22" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="2K"/>
 <part name="R23" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="TTL3" library="rhoban" deviceset="CONNEC_1X03" device="_TTL"/>
-<part name="R8S3" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="20"/>
+<part name="R8S3" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
 <part name="GPIO2" library="rhoban" deviceset="CONNEC_1X06" device=""/>
 </parts>
 <sheets>

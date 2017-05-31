@@ -2927,14 +2927,14 @@ design rules under a new name.</description>
 <element name="U$5" library="SparkFun-Electromechanical" package="STAND-OFF" value="" x="2.51" y="81.19"/>
 <element name="C1" library="SparkFun-Passives" package="CPOL-RADIAL-10UF-25V" value="" x="24.18" y="16.27" rot="R90"/>
 <element name="C2" library="SparkFun-Passives" package="CPOL-RADIAL-10UF-25V" value="" x="31.13" y="16.33" rot="R90"/>
-<element name="R1" library="rhoban" package="R0805" value="" x="18.13" y="56.15"/>
-<element name="R2" library="rhoban" package="R0805" value="" x="24.34" y="51.18" rot="R90"/>
-<element name="R3" library="rhoban" package="R0805" value="" x="25.4" y="47.67"/>
+<element name="R1" library="rhoban" package="R0805" value="3K" x="18.13" y="56.15"/>
+<element name="R2" library="rhoban" package="R0805" value="3K" x="24.34" y="51.18" rot="R90"/>
+<element name="R3" library="rhoban" package="R0805" value="3K" x="25.4" y="47.67"/>
 <element name="CA" library="rhoban" package="C0805" value="C_EU-100NF" x="17.37" y="46.05" rot="R180">
 <attribute name="FARNELL_LINK" value="http://fr.farnell.com/kemet/c0805c104j5ractu/condensateur-100nf-50v-x7r-0805/dp/1414663RL" x="17.37" y="46.05" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="DATASHEET" value="condo100nF.pdf" x="17.37" y="46.05" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="R8S" library="rhoban" package="R0805" value="20" x="9.02" y="45.99"/>
+<element name="R8S" library="rhoban" package="R0805" value="22" x="9.02" y="45.99"/>
 <element name="USB" library="rhoban" package="CONNEC_1X04" value="CONNEC_1X04" x="35.96" y="73.37"/>
 <element name="R5" library="rhoban" package="R0805" value="22" x="37.26" y="70.67" rot="R90"/>
 <element name="R6" library="rhoban" package="R0805" value="22" x="39.86" y="70.67" rot="R90"/>
@@ -2942,7 +2942,7 @@ design rules under a new name.</description>
 <element name="R7" library="rhoban" package="R0805" value="1.5K" x="38.56" y="66.97"/>
 <element name="R8" library="rhoban" package="R0805" value="" x="38.1" y="29.55" rot="R180"/>
 <element name="R9" library="rhoban" package="R0805" value="" x="38.13" y="33.15" rot="R180"/>
-<element name="R4" library="rhoban" package="R0805" value="" x="26.55" y="51.18" rot="R90"/>
+<element name="R4" library="rhoban" package="R0805" value="3K" x="26.55" y="51.18" rot="R90"/>
 <element name="GPIO1" library="rhoban" package="CONNEC_1X09" value="CONNEC_1X09" x="24.84" y="60.99" rot="R90"/>
 <element name="R10" library="rhoban" package="R0805" value="2K" x="16.17" y="53.91"/>
 <element name="R11" library="rhoban" package="R0805" value="3K" x="20.58" y="53.91" rot="R180"/>
@@ -2959,16 +2959,16 @@ design rules under a new name.</description>
 <attribute name="DATASHEET" value="max485.pdf" x="5.46" y="48.03" size="1.778" layer="27" display="off"/>
 <attribute name="OC_FARNELL" value="1379973" x="5.46" y="48.03" size="1.778" layer="27" display="off"/>
 </element>
-<element name="R12" library="rhoban" package="R0805" value="" x="26.55" y="39.12" rot="R90"/>
-<element name="R13" library="rhoban" package="R0805" value="" x="25.29" y="35.49"/>
-<element name="R14" library="rhoban" package="R0805" value="" x="18.78" y="43.83" rot="R180"/>
+<element name="R12" library="rhoban" package="R0805" value="3K" x="26.55" y="39.12" rot="R90"/>
+<element name="R13" library="rhoban" package="R0805" value="3K" x="25.29" y="35.49"/>
+<element name="R14" library="rhoban" package="R0805" value="3K" x="18.78" y="43.83" rot="R180"/>
 <element name="CA1" library="rhoban" package="C0805" value="C_EU-100NF" x="18.33" y="33.75">
 <attribute name="FARNELL_LINK" value="http://fr.farnell.com/kemet/c0805c104j5ractu/condensateur-100nf-50v-x7r-0805/dp/1414663RL" x="17.4" y="32.1" size="1.778" layer="27" display="off"/>
 <attribute name="DATASHEET" value="condo100nF.pdf" x="17.4" y="32.1" size="1.778" layer="27" display="off"/>
 </element>
-<element name="R7S1" library="rhoban" package="R0805" value="20" x="13.02" y="33.61"/>
-<element name="R8S1" library="rhoban" package="R0805" value="20" x="8.91" y="33.64"/>
-<element name="R15" library="rhoban" package="R0805" value="" x="24.06" y="39.09" rot="R90"/>
+<element name="R7S1" library="rhoban" package="R0805" value="22" x="13.02" y="33.61"/>
+<element name="R8S1" library="rhoban" package="R0805" value="22" x="8.91" y="33.64"/>
+<element name="R15" library="rhoban" package="R0805" value="3K" x="24.06" y="39.09" rot="R90"/>
 <element name="R16" library="rhoban" package="R0805" value="2K" x="15.39" y="41.61"/>
 <element name="R17" library="rhoban" package="R0805" value="3K" x="20.01" y="41.67" rot="R180"/>
 <element name="TTL2" library="rhoban" package="CONNEC_TTL" value="CONNEC_1X03_TTL" x="6.74" y="45.25" rot="R270"/>
@@ -2983,20 +2983,20 @@ design rules under a new name.</description>
 <attribute name="DATASHEET" value="max485.pdf" x="4.26" y="34.92" size="1.778" layer="27" display="off"/>
 <attribute name="OC_FARNELL" value="1379973" x="4.26" y="34.92" size="1.778" layer="27" display="off"/>
 </element>
-<element name="R18" library="rhoban" package="R0805" value="" x="17.52" y="30.99"/>
-<element name="R19" library="rhoban" package="R0805" value="" x="26.16" y="25.35" rot="R90"/>
-<element name="R20" library="rhoban" package="R0805" value="" x="24.63" y="21.87" rot="R180"/>
+<element name="R18" library="rhoban" package="R0805" value="3K" x="17.52" y="30.99"/>
+<element name="R19" library="rhoban" package="R0805" value="3K" x="26.16" y="25.35" rot="R90"/>
+<element name="R20" library="rhoban" package="R0805" value="3K" x="24.63" y="21.87" rot="R180"/>
 <element name="CA2" library="rhoban" package="C0805" value="C_EU-100NF" x="17.43" y="20.61">
 <attribute name="FARNELL_LINK" value="http://fr.farnell.com/kemet/c0805c104j5ractu/condensateur-100nf-50v-x7r-0805/dp/1414663RL" x="16.5" y="18.96" size="1.778" layer="27" display="off"/>
 <attribute name="DATASHEET" value="condo100nF.pdf" x="16.5" y="18.96" size="1.778" layer="27" display="off"/>
 </element>
-<element name="R7S2" library="rhoban" package="R0805" value="20" x="12.84" y="20.95"/>
-<element name="R8S2" library="rhoban" package="R0805" value="20" x="8.64" y="20.89"/>
-<element name="R21" library="rhoban" package="R0805" value="" x="23.61" y="25.32" rot="R90"/>
+<element name="R7S2" library="rhoban" package="R0805" value="22" x="12.84" y="20.95"/>
+<element name="R8S2" library="rhoban" package="R0805" value="22" x="8.64" y="20.89"/>
+<element name="R21" library="rhoban" package="R0805" value="3K" x="23.61" y="25.32" rot="R90"/>
 <element name="R22" library="rhoban" package="R0805" value="2K" x="16.41" y="28.56"/>
 <element name="R23" library="rhoban" package="R0805" value="3K" x="20.67" y="28.59"/>
 <element name="TTL3" library="rhoban" package="CONNEC_TTL" value="CONNEC_1X03_TTL" x="6.33" y="32.38" rot="R270"/>
-<element name="R8S3" library="rhoban" package="R0805" value="20" x="13.02" y="46"/>
+<element name="R8S3" library="rhoban" package="R0805" value="22" x="13.02" y="46"/>
 <element name="GPIO2" library="rhoban" package="CONNEC_1X06" value="CONNEC_1X06" x="27.5" y="61" rot="R90"/>
 </elements>
 <signals>
