@@ -8,7 +8,7 @@ humanoid robots. It features:
 * A socket for a GY-85 IMU
 * A socket for a Maple Mini controller (based on the Cortex-M3, 32 bit
   arm at 72Mhz)
-* An USB wire can be directly soldered
+* USB cable can be directly soldered on it
 * GPIO that can be used for buttons or any other purposes
 
 ![DXLBoard](/docs/board.png)
