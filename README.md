@@ -11,10 +11,10 @@ humanoid robots. It features:
 * An USB wire can be directly soldered
 * GPIO that can be used for buttons or any other purposes
 
-![DXLBoard](docs/board.png)
+![DXLBoard](/docs/board.png)
 
 ## Documentation
 
 Here you can find documentation about:
 
-* [electronics](electronics/)
+* [electronics](/electronics/)
