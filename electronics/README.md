@@ -13,7 +13,7 @@ Name               | Farnell ID | Quantity | Description
 2212S-08SG-85      | 1593463    | 1        | 1x8 0.1" female socket for the IMU
 MOLEX 22-03-5045   | 1104204    | 3        | Dynamixel 4 pins connector
 MOLEX 22-03-5035   | 9979620    | 3        | Dynamixel 3 pins connector
-ST485              | 1564306    |          | Buses transciever (can be replaced with MAX485), SOIC-8
+ST485              | 1564306    | 3        | Buses transciever (can be replaced with MAX485), SOIC-8
 R0805 22 ohms      | 2128982    | 8        | Protection resistors
 R0805 1.5 Kohms    | 2129125    | 1        | USB detection resistor
 R0805 2 Kohms      | 2129135    | 3        | Pull-up/Pull-down
