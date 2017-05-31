@@ -17,4 +17,6 @@ humanoid robots. It features:
 
 Here you can find documentation about:
 
-* [electronics](/electronics/)
+* [Electronics](/electronics/)
+* [Mechanics](/mechanics/)
+* [Firmware](/firmware/)

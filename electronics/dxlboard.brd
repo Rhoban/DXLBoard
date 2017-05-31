@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.5" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.635" altunitdist="mm" altunit="mm"/>
+<grid distance="0.25" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.635" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -1976,6 +1976,10 @@
 <text x="38.56" y="73.14" size="0.8128" layer="121" rot="R90">D- (WHITE)</text>
 <text x="36.1" y="73.73" size="0.8128" layer="121" rot="R90">USB+ (RED)</text>
 <text x="43.69" y="73.05" size="0.8128" layer="121" rot="R90">GND (BLACK)</text>
+<dimension x1="0" y1="83.72" x2="0" y2="12.72" x3="-12.75485625" y3="48.22" layer="51"/>
+<dimension x1="0" y1="83.72" x2="48.75" y2="83.72" x3="24.375" y3="94.49453125" layer="51"/>
+<dimension x1="2.5" y1="81.25" x2="2.5" y2="15.25" x3="-4.25" y3="48.25" layer="51"/>
+<dimension x1="2.5" y1="81.25" x2="38.25" y2="81.25" x3="20.375" y3="87.25" layer="51"/>
 </plain>
 <libraries>
 <library name="rhoban">
