@@ -63,7 +63,7 @@ value will be `0xFF`.
 The GY-85 IMU is accessed using I²C bus and the raw values can be retrieved the same
 way you read from a dynamixel device.
 
-The dynamixel model of the imu will be `350`.
+The dynamixel model of the imu will be `350` and its ID is `241`.
 
 To read the IMU, you should ask for 110 bytes from the `0x24` address. Here is what you
 will receive:
