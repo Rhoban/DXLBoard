@@ -65,7 +65,7 @@ way you read from a dynamixel device.
 
 The dynamixel model of the imu will be `350`.
 
-To read the IMU, you should ask for 50 bytes from the `0x24` address. Here is what you
+To read the IMU, you should ask for 110 bytes from the `0x24` address. Here is what you
 will receive:
 
 
@@ -78,6 +78,8 @@ Gyrometer X     | 16 bits signed   | Values for the gyrometer (raw)
 Gyrometer Y     | 16 bits signed   | 
 Gyrometer Z     | 16 bits signed   | 
 Magnetometer X  | 16 bits signed   | Values for the magnetometer (raw)
+Magnetometer Y  | 16 bits signed   | 
+Magnetometer Z  | 16 bits signed   | 
 Sequence        | 32 bits unsigned | Sequence number
 
 This block of data is repeated 5 times, because the values are stored in a circular
