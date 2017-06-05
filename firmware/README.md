@@ -58,3 +58,35 @@ Broadcast      | `0x84`      | (1 + `N`) * `M`    | `STATUS1`, `DATA1` (`N` byte
 The `STATUSX` byte is the error field from the motor respond. In case of timeout, this
 value will be `0xFF`.
 
+## Reading data from the IMU
+
+The GY-85 IMU is accessed using I²C bus and the raw values can be retrieved the same
+way you read from a dynamixel device.
+
+The dynamixel model of the imu will be `350`.
+
+To read the IMU, you should ask for 50 bytes from the `0x24` address. Here is what you
+will receive:
+
+
+Field           | Size             | Encoding   
+----------------|------------------|--------------------------
+Accelerometer X | 16 bits signed   | Values for the accelerometer (raw)
+Accelerometer Y | 16 bits signed   | 
+Accelerometer Z | 16 bits signed   | 
+Gyrometer X     | 16 bits signed   | Values for the gyrometer (raw)
+Gyrometer Y     | 16 bits signed   | 
+Gyrometer Z     | 16 bits signed   | 
+Magnetometer X  | 16 bits signed   | Values for the magnetometer (raw)
+Sequence        | 32 bits unsigned | Sequence number
+
+This block of data is repeated 5 times, because the values are stored in a circular
+buffer. Thus, the higher sequence number is the more recent data.
+
+The circular buffer is used to ensure that you don't miss any packet, since dynamixel
+is a master/slave protocol.
+
+* [ADXL345](http://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf): Values from the accelerometer are 256 LSB per `g`.
+
+* [ITG-3200](https://www.sparkfun.com/datasheets/Sensors/Gyro/PS-ITG-3200-00-01.4.pdf) Values from the gyrometer are 14.375 LSB per `deg/s`. We recommend you also calibrate the offset for its 0 value to avoid drift.
+
