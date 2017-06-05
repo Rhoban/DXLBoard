@@ -81,7 +81,9 @@ Magnetometer X  | 16 bits signed   | Values for the magnetometer (raw)
 Sequence        | 32 bits unsigned | Sequence number
 
 This block of data is repeated 5 times, because the values are stored in a circular
-buffer. Thus, the higher sequence number is the more recent data.
+buffer. Thus, the higher sequence number is the more recent is data. Note that asking
+many bytes from the IMU is not very costy in the timings because the data are
+here pure USB (through serial emulator).
 
 The circular buffer is used to ensure that you don't miss any packet, since dynamixel
 is a master/slave protocol.
