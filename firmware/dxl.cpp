@@ -47,13 +47,13 @@ ui8 dxl_compute_checksum(volatile struct dxl_packet *packet) {
     sum += packet->id;
     sum += packet->instruction;
     sum += packet->parameter_nb+2;
-    
+
     for (i=0; i<packet->parameter_nb; i++) {
         sum += packet->parameters[i];
     }
 
     sum = ~(sum & 0xFF);
-    
+
     return (ui8) sum;
 }
 
@@ -87,7 +87,7 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
                 goto pc_error;
             }
     }
-        
+
     packet->dxl_state++;
     return;
 
@@ -143,6 +143,10 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
+        for (slave = bus->slaves; slave != NULL; slave = slave->next) {
+            slave->process(slave, master_packet);
+        }
+
         master_packet->process = false;
     }
 
