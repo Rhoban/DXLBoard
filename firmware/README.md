@@ -26,6 +26,12 @@ make install
 The board will appear as a virtual serial port (typically `/dev/ttyACM0` on linux).
 You can directly send dynamixel packet through it.
 
+Note that we confgure our servos as following:
+
+* Baudrate: 1000000
+* Return delay to minimum
+* Status return level to 1 (only answer READ and not on WRITE)
+
 ## Sync Read
 
 To take advantage of the 3 buses, there is a pseudo Sync Read command implemented
