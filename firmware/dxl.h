@@ -32,7 +32,7 @@ void dxl_packet_init(volatile struct dxl_packet *packet);
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b);
 int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer);
 void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packet *to);
-ui8 dxl_compute_checksum(volatile struct dxl_packet *packet);
+unsigned short dxl_compute_checksum(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
 
 /**
  * A Dynamixel Device which is on the bus

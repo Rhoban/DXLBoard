@@ -96,6 +96,8 @@ unsigned short dxl_compute_checksum(unsigned short crc_accum, unsigned char *dat
 }
 
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
+    ui8 *bytes;
+    int pos = 0;
     switch (packet->dxl_state) {
         //header
         case 0:
@@ -137,9 +139,9 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
         default:
             //first CRC byte
             if (packet->dxl_state - 8 == packet->parameter_nb) {
-                packet->crc == b;
+                packet->crc = b;
             }else if (packet->dxl_state - 9 == packet->parameter_nb) {
-                packet->crc == b << 8;
+                packet->crc = packet->crc + (b << 8);
                 goto pc_ended;
 
             } else {
@@ -156,8 +158,6 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
 
     pc_ended:
     //todo this is code duplication with dxl_write_packet method
-    ui8 *bytes;
-    unsigned int pos = 0;
     //header
     bytes[pos++] = 0xff;
     bytes[pos++] = 0xff;
@@ -172,6 +172,7 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
     //instruction
     bytes[pos++] = packet->instruction;
     //parameter
+    int i;
     for (i = 0; i < packet->parameter_nb; i++) {
         bytes[pos++] = packet->parameters[i];
     }
@@ -182,7 +183,6 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
 
     packet->dxl_state = 0;
     return;
-
     pc_error:
     packet->dxl_state = 0;
 }

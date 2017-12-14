@@ -225,7 +225,6 @@ void sendSerialPacket(struct serial *serial, volatile struct dxl_packet *packet)
 static void dxl_serial_tick(volatile struct dxl_device *self) 
 {
     struct serial *serial = (struct serial*)self->data;
-    static int baudrate = DXL_DEFAULT_BAUDRATE;
 
     // Timeout on sending packet, this should never happen
     if (!serial->txComplete && ((millis() - serial->packetSent) > 3)) {
@@ -255,7 +254,7 @@ static void process(volatile struct dxl_device *self, volatile struct dxl_packet
 
     if (serial->txComplete && !syncReadMode) {
         // Forwarding the packet to the serial bus, if either broadcast or connected device
-        if (packet->id == DXL_BROADCAST || devicePorts(packet->id) == serial->index) {
+        if (packet->id == DXL_BROADCAST || devicePorts[packet->id] == serial->index) {
             self->packet.dxl_state = 0;
             self->packet.process = false;
             sendSerialPacket(serial, packet);
