@@ -9,8 +9,15 @@
 #define DXL_REG_WRITE   0x04
 #define DXL_ACTION      0x05
 #define DXL_RESET       0x06
+#define DXL_REBOOT      0x08
+
+#define DXL_STATUS      0x55
+
+#define DXL_SYNC_READ   0x82
 #define DXL_SYNC_WRITE  0x83
-#define DXL_SYNC_READ   0x84
+#define DXL_BULK_READ   0x92
+#define DXL_BULK_WRITE  0x93
+
 #define DXL_NO_ERROR    0x00
 
 void dxl_process(

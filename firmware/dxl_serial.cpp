@@ -28,20 +28,6 @@ struct serial
     // Transmission buffer
     char outputBuffer[DXL_BUFFER_SIZE];
 
-    // Number of bytes to send
-    ui8 toSend;
-    // IDs of devices that we should sync read
-    ui8 syncReadIds[64];
-    // Offset of the data in the packet
-    ui8 syncReadOffsets[64];
-    // The count of devices that we should sync read
-    ui8 syncReadCount;
-    // Current device that is read
-    ui8 syncReadCurrent;
-    // Packet use for sync read
-    struct dxl_packet syncReadPacket;
-    // Timestamp of the starting
-    uint32_t syncReadStart;
     // Timestamp for sending data
     uint32_t packetSent;
 
@@ -82,7 +68,6 @@ static void serial_received(struct serial *serial)
     serial->dmaEvent = false;
     serial->txComplete = true;
     receiveMode(serial);
-    serial->syncReadStart = syncReadTimer.getCount();
 }
 
 static void tc_event(struct serial *serial)
@@ -232,25 +217,7 @@ void sendSerialPacket(struct serial *serial, volatile struct dxl_packet *packet)
     receiveMode(serial);
 #endif
 }
-          
-/**
- * Sends the next sync read packet
- */
-void syncReadSendPacket(struct serial *serial)
-{
-    // Sending the read packet on the bus
-    struct dxl_packet readPacket;
-    readPacket.instruction = DXL_READ_DATA;
-    readPacket.parameter_nb = 2;
-    readPacket.id = serial->syncReadIds[serial->syncReadCurrent];
-    readPacket.parameters[0] = syncReadAddr;
-    readPacket.parameters[1] = syncReadLength;
-    sendSerialPacket(serial, &readPacket);
 
-    // Resetting the receive packet
-    serial->syncReadPacket.dxl_state = 0;
-    serial->syncReadPacket.process = false;
-}
 
 /**
  * Ticking
@@ -264,81 +231,15 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
     if (!serial->txComplete && ((millis() - serial->packetSent) > 3)) {
         serial_received(serial);
     }
-
-    /*
-    if (!serial->txComplete) {
-        if (serial->dmaEvent) {
-            // DMA completed
-            serial->dmaEvent = false;
-            serial->txComplete = true;
-            //serial->port->waitDataToBeSent();
-            receiveMode(serial);
-            serial->syncReadStart = syncReadTimer.getCount();
-        }
-    } 
-    */
  
     if (serial->txComplete) {
-        if (syncReadMode) {
-            bool processed = false;
-
-            if (syncReadDevices <= 0 && syncReadResponse == &self->packet) {
-                // The process is over, no devices are currently trying to get packet and we
-                // are the device that will respond
-                syncReadResponse->process = true;
-                syncReadMode = false;
-            } else if (serial->syncReadCount) {
-                if (serial->syncReadCurrent == 0xff) {
-                    // Sending the first packet
-                    serial->syncReadCurrent = 0;
-                    syncReadSendPacket(serial);
-                } else {
-                    // Reading available data from the port
-                    while (serial->port->available() && !serial->syncReadPacket.process) {
-                        dxl_packet_push_byte(&serial->syncReadPacket, serial->port->read());
-                    }
-                    if (serial->syncReadPacket.process && serial->syncReadPacket.parameter_nb == syncReadLength) {
-                        // The packet is OK, copying data to the response at correct offset
-                        ui8 i;
-                        ui8 off = serial->syncReadOffsets[serial->syncReadCurrent]*(syncReadLength+1);
-                        syncReadResponse->parameters[off] = serial->syncReadPacket.error;
-                        for (i=0; i<syncReadLength; i++) {
-                            syncReadResponse->parameters[off+1+i] = serial->syncReadPacket.parameters[i];
-                        }
-                        processed = true;
-                    } else if (syncReadTimer.getCount()-serial->syncReadStart > 65) {
-                        // The timeout is reached, answer with code 0xff
-                        ui8 off = serial->syncReadOffsets[serial->syncReadCurrent]*(syncReadLength+1);
-                        syncReadResponse->parameters[off] = 0xff;
-                        processed = true;
-                    }
-                    if (processed) {
-                        serial->syncReadCurrent++;
-                        if (serial->syncReadCurrent >= serial->syncReadCount) {
-                            // The process is over for this bus
-                            syncReadDevices--;
-                            serial->syncReadCount = 0;
-                        } else {
-                            // Sending the next packet
-                            syncReadSendPacket(serial);
-                        }
-                    }
-                }
-            }
-        } else {
-            if (baudrate != usb_cdcacm_get_baud()) {
-                // baudrate = usb_cdcacm_get_baud();
-                // initSerial(serial, baudrate);
-            }
-
-            // Reading data that come from the serial bus
-            while (serial->port->available() && !self->packet.process) {
-                dxl_packet_push_byte(&self->packet, serial->port->read());
-                if (self->packet.process) {
-                    // A packet is coming from our bus, noting it in the devices allocation
-                    // table
-                    devicePorts[self->packet.id] = serial->index;
-                }
+        // Reading data that come from the serial bus
+        while (serial->port->available() && !self->packet.process) {
+            dxl_packet_push_byte(&self->packet, serial->port->read());
+            if (self->packet.process) {
+                // A packet is coming from our bus, noting it in the devices allocation
+                // table
+                devicePorts[self->packet.id] = serial->index;
             }
         }
     }
@@ -353,43 +254,11 @@ static void process(volatile struct dxl_device *self, volatile struct dxl_packet
     dxl_serial_tick(self);
 
     if (serial->txComplete && !syncReadMode) {
-        if (packet->instruction == DXL_SYNC_READ && packet->parameter_nb > 2) {
-            ui8 i;
-            syncReadMode = true;
-            syncReadAddr = packet->parameters[0];
-            syncReadLength = packet->parameters[1];
-            syncReadDevices = 0;
-            ui8 total = 0;
-
-            for (i=0; (i+2)<packet->parameter_nb; i++) {
-                ui8 id = packet->parameters[i+2];
-
-                if (devicePorts[id]) {
-                    struct serial *port = serials[devicePorts[id]];
-                    if (port->syncReadCount == 0) {
-                        port->syncReadCurrent = 0xff;
-                        syncReadDevices++;
-                    }
-                    port->syncReadIds[port->syncReadCount] = packet->parameters[i+2];
-                    port->syncReadOffsets[port->syncReadCount] = i;
-                    port->syncReadCount++;
-                    total++;
-                }
-            }
-
-            syncReadTimer.refresh();
-            syncReadResponse = (struct dxl_packet*)&self->packet;
-            syncReadResponse->error = 0;
-            syncReadResponse->parameter_nb = (syncReadLength+1)*total;
-            syncReadResponse->process = false;
-            syncReadResponse->id = packet->id;
-        } else {
-            // Forwarding the packet to the serial bus
-            if (packet->id == DXL_BROADCAST || packet->id < 200) {
-                self->packet.dxl_state = 0;
-                self->packet.process = false;
-                sendSerialPacket(serial, packet);
-            }
+        // Forwarding the packet to the serial bus, if either broadcast or connected device
+        if (packet->id == DXL_BROADCAST || devicePorts(packet->id) == serial->index) {
+            self->packet.dxl_state = 0;
+            self->packet.process = false;
+            sendSerialPacket(serial, packet);
         }
     }
 }
@@ -422,9 +291,6 @@ void dxl_serial_init(volatile struct dxl_device *device, int index)
         serial->direction = DIRECTION3;
         serial->channel = DMA_CH2;
     }
-            
-    serial->syncReadCurrent = 0xff;
-    serial->syncReadCount = 0;
 
     initSerial(serial);
 

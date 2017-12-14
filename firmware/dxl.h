@@ -25,6 +25,7 @@ struct dxl_packet {
     ui8 parameters[DXL_MAX_PARAMS+30];
     bool process;
     ui8 dxl_state;
+    short crc;
 };
 
 void dxl_packet_init(volatile struct dxl_packet *packet);
