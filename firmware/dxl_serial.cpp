@@ -234,6 +234,7 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
     if (serial->txComplete) {
         // Reading data that come from the serial bus
         while (serial->port->available() && !self->packet.process) {
+            SerialUSB.println("SLAVE");
             dxl_packet_push_byte(&self->packet, serial->port->read());
             if (self->packet.process) {
                 // A packet is coming from our bus, noting it in the devices allocation
@@ -256,6 +257,7 @@ static void process(volatile struct dxl_device *self, volatile struct dxl_packet
         //todo check if this is a request which packages are on the bus package
         // Forwarding the packet to the serial bus, if either broadcast or connected device
         if (packet->id == DXL_BROADCAST || devicePorts[packet->id] == serial->index) {
+            SerialUSB.println("MASTER");
             self->packet.dxl_state = 0;
             self->packet.process = false;
             sendSerialPacket(serial, packet);
