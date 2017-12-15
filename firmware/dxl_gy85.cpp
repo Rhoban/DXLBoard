@@ -94,6 +94,7 @@ static void dxl_gy85_read_data(volatile struct dxl_device *self, ui8 id, ui8 add
 
 static void dxl_gy85_process(volatile struct dxl_device *self, volatile struct dxl_packet *packet)
 {
+    SerialUSB.println("process");
     dxl_process(self, packet, dxl_gy85_check_id, dxl_gy85_write_data, dxl_gy85_read_data);
 }
 

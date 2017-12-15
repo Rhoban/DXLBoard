@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <gpio.h>
 #include <wirish/wirish.h>
 #include "dxl.h"
 #include "dxl_protocol.h"
@@ -17,6 +18,8 @@ void dxl_packet_init(volatile struct dxl_packet *packet) {
  * Writes the given packet to the buffer
  */
 int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer) {
+    //todo handle  Processing of Packet Before / After Transmission
+    // http://support.robotis.com/en/product/actuator/dynamixel_pro/communication/instruction_status_packet.htm
     int i;
     unsigned int pos = 0;
 
@@ -96,55 +99,70 @@ unsigned short dxl_compute_checksum(unsigned short crc_accum, unsigned char *dat
 }
 
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
-    ui8 *bytes;
+    //todo handle  Processing of Packet Before / After Transmission
+    // http://support.robotis.com/en/product/actuator/dynamixel_pro/communication/instruction_status_packet.htm
+    ui8 bytes[DXL_BUFFER_SIZE];
     int pos = 0;
+    SerialUSB.println("push byte");
+    SerialUSB.println(b);
     switch (packet->dxl_state) {
         //header
         case 0:
+            SerialUSB.println("0");
             if (b != 0xFF) {
                 goto pc_error;
             }
             break;
         case 1:
+            SerialUSB.println("1");
             if (b != 0xFF) {
                 goto pc_error;
             }
             break;
         case 2:
+            SerialUSB.println("2");
             if (b != 0xFD) {
                 goto pc_error;
             }
             break;
         //reserved byte
         case 3:
+            SerialUSB.println("3");
             if (b != 0x00) {
                 goto pc_error;
             }
             break;
         //id
         case 4:
+            SerialUSB.println("4");
             packet->id = b;
             break;
         //package length. consists of two bytes
         case 5: //low byte
+            SerialUSB.println("5");
             packet->parameter_nb = b - 3; //-3 to get from length to parameter number
             break;
         case 6://high byte
+            SerialUSB.println("6");
             packet->parameter_nb = packet->parameter_nb + (b << 8); //add with number from low byte
             break;
         //instruction
         case 7:
+            SerialUSB.println("7");
             packet->instruction = b;
             break;
         default:
             //first CRC byte
             if (packet->dxl_state - 8 == packet->parameter_nb) {
+                SerialUSB.println("crc1");
                 packet->crc = b;
             }else if (packet->dxl_state - 9 == packet->parameter_nb) {
+                SerialUSB.println("crc2");
                 packet->crc = packet->crc + (b << 8);
                 goto pc_ended;
 
             } else {
+                SerialUSB.println(packet->dxl_state);
                 packet->parameters[packet->dxl_state - 5] = b;
             }
 
@@ -157,6 +175,7 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
     return;
 
     pc_ended:
+    SerialUSB.println("pc end");
     //todo this is code duplication with dxl_write_packet method
     //header
     bytes[pos++] = 0xff;
@@ -180,10 +199,11 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b) {
     if (dxl_compute_checksum(0, bytes, pos) == packet->crc){
         packet->process = true;
     }
-
+    SerialUSB.println("pc end4");
     packet->dxl_state = 0;
     return;
     pc_error:
+    SerialUSB.println("error");
     packet->dxl_state = 0;
 }
 
@@ -228,6 +248,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
+        SerialUSB.println("Master package");
         for (slave = bus->slaves; slave != NULL; slave = slave->next) {
             slave->process(slave, master_packet);
         }

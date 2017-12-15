@@ -67,7 +67,7 @@ void setup()
 
     // Adding pins
     dxl_pins_init(&slaves[k++], 242);
-    
+
     // Add a magnetic coder on the bus, ID 235
     // dxl_magnetic_coder_init(&slaves[k++], 3, 235);
 

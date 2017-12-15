@@ -5,6 +5,7 @@ static void dxl_usb_serial_tick(volatile struct dxl_device *self)
 {
     // Reads data from SerialUSB to the dynamixel packet
     while (SerialUSB.available() && !self->packet.process) {
+        SerialUSB.println("tick");
         dxl_packet_push_byte(&self->packet, SerialUSB.read());
     }
 }
@@ -14,7 +15,7 @@ static void dxl_usb_serial_process(volatile struct dxl_device *self, volatile st
     // If a packet is available for process, sends it through the USB adapter
     ui8 buffer[DXL_BUFFER_SIZE];
     int n = dxl_write_packet(packet, buffer);
-
+    SerialUSB.println("process");
     SerialUSB.write(buffer, n);
 }
 
