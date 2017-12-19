@@ -22,6 +22,7 @@ int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer)
     unsigned int i;
     unsigned int pos = 0;
     unsigned int length;
+    unsigned int err_bytes =0;
 
     buffer[pos++] = 0xff;
     buffer[pos++] = 0xff;
@@ -31,6 +32,13 @@ int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer)
     length = pos;
     pos += 2;
     buffer[pos++] = packet->instruction;
+    // we have to send the error for status packages before the parameters
+    if(packet->instruction == 0x55){
+        buffer[pos++] = packet->error;
+        //remember that the length is one byte longer
+        err_bytes =1;
+    }
+
 
     // Stuffing
     int ff = 0;
@@ -52,8 +60,8 @@ int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer)
         }
     }
 
-    buffer[length] = (packet->parameter_nb+3+stuffing)&0xff;
-    buffer[length+1] = ((packet->parameter_nb+3+stuffing)>>8)&0xff;
+    buffer[length] = (packet->parameter_nb+3+stuffing+err_bytes)&0xff;
+    buffer[length+1] = ((packet->parameter_nb+3+stuffing+err_bytes)>>8)&0xff;
 
     unsigned short crc16 = update_crc(0, buffer, pos);
     buffer[pos++] = crc16&0xff;
@@ -66,7 +74,10 @@ void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packe
     memcpy((void *) to, (void *) from, sizeof(struct dxl_packet));
 }
 
-static unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size)
+/*
+ * Compute checksum
+ */
+unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size)
 {
     unsigned short i, j;
     unsigned short crc_table[256] = {
@@ -113,6 +124,9 @@ static unsigned short update_crc(unsigned short crc_accum, unsigned char *data_b
     return crc_accum;
 }
 
+/*
+ * Handle unstuffing for protocol 2
+ */
 static int dxl_unstuff(volatile unsigned char *packet, int n)
 {
     int pos = 0;
@@ -169,6 +183,10 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
             }
             break;
         case 4:
+            if (b== 0xff or b==0xfd){
+                //we are not reading a header but some data bytes which were stuffed
+                goto pc_error;
+            }
             packet->id = b;
             break;
         case 5:
@@ -267,7 +285,6 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
-        SerialUSB.println("Master package");
         for (slave = bus->slaves; slave != NULL; slave = slave->next) {
             slave->process(slave, master_packet);
         }
