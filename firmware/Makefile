@@ -36,7 +36,6 @@ BOARD_INCLUDE_DIR := $(MAKEDIR)/board-includes
 BOARD ?= maple_mini
 MEMORY_TARGET ?= flash
 
-#BOOTLOADER ?= robotis
 BOOTLOADER ?= maple
 BOOTLOADER_PORT ?= /dev/ttyACM0
 
