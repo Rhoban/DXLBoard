@@ -14,7 +14,6 @@
 
 // Devices allocation
 static bool serialInitialized = false;
-static uint8_t devicePorts[254];
 
 // Device data
 struct serial
@@ -235,11 +234,6 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
         // Reading data that come from the serial bus
         while (serial->port->available() && !self->packet.process) {
             dxl_packet_push_byte(&self->packet, serial->port->read());
-            if (self->packet.process) {
-                // A packet is coming from our bus, noting it in the devices allocation
-                // table
-                devicePorts[self->packet.id] = serial->index;
-            }
         }
     }
 }
@@ -304,11 +298,6 @@ void dxl_serial_init(volatile struct dxl_device *device, int index)
         usart1_tc_handler = usart1_tc;
         usart2_tc_handler = usart2_tc;
         usart3_tc_handler = usart3_tc;
-
-        // Reset allocation
-        for (unsigned int k=0; k<sizeof(devicePorts); k++) {
-            devicePorts[k] = 0;
-        }
 
         // Initialize sync read timer (1 step = 10uS)
         syncReadTimer.pause();
