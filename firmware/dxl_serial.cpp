@@ -252,14 +252,15 @@ static void process(volatile struct dxl_device *self, volatile struct dxl_packet
     struct serial *serial = (struct serial*)self->data;
     dxl_serial_tick(self);
 
-    if (serial->txComplete && !syncReadMode) {
+    if (serial->txComplete) {
         //todo check if this is a request which packages are on the bus package
+        //todo handle multiple buses
         // Forwarding the packet to the serial bus, if either broadcast or connected device
-        if (packet->id == DXL_BROADCAST || devicePorts[packet->id] == serial->index) {
+        //if (packet->id == DXL_BROADCAST || devicePorts[packet->id] == serial->index) {
             self->packet.dxl_state = 0;
             self->packet.process = false;
             sendSerialPacket(serial, packet);
-        }
+        //}
     }
 }
 

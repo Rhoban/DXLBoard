@@ -201,6 +201,10 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
             break;
         case 7:
             packet->instruction = b;
+            if(b==0x01){
+                //this is a ping which does not have any parameters. Next must be the crc
+                packet->dxl_state = 0xffff;
+            }
             break;
         case 0x10000:
             packet->crc16 -= b&0xff;
@@ -210,13 +214,28 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
             goto pc_ended;
             break;
         default:
-            packet->parameters[packet->dxl_state - 8] = b;
+            //handle parameters
+            unsigned int err_byte =0;
+            if(packet->instruction == 0x55){
+                //this is a status package, we have to handle the error byte
+                err_byte =1;
+            }
+
+            //this is the error byte, handle it
+            if(err_byte && packet->dxl_state == 8){
+                packet->error = b;
+                //number of parameters has to be reduced by one, since one byte after length is the error byte
+                packet->parameter_nb -= 1;
+            }else {
+                //normal parameter bytes
+                packet->parameters[packet->dxl_state - 8 - err_byte] = b;
+            }
 
             if (packet->dxl_state - 8 > DXL_MAX_PARAMS) {
                 goto pc_error;
             }
 
-            if (packet->dxl_state-7 >= packet->parameter_nb) {
+            if (packet->dxl_state-7-err_byte >= packet->parameter_nb) {
                 packet->dxl_state = 0xffff;
             }
 
@@ -285,6 +304,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
+        //SerialUSB.println("master");
         for (slave = bus->slaves; slave != NULL; slave = slave->next) {
             slave->process(slave, master_packet);
         }
