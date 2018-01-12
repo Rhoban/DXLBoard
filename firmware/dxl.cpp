@@ -291,12 +291,13 @@ void dxl_bus_init(struct dxl_bus *bus)
     }
 }
 
-void split_sync_package(struct dxl_bus *bus, struct dxl_packet *master_packet, struct dxl_packet *bus1_package, struct dxl_packet *bus2_package, struct dxl_packet *bus3_package)
+void split_sync_package(struct dxl_bus *bus)
 {
-    struct dxl_packet *bus_packages[3];
-    bus_packages[0] = bus1_package;
-    bus_packages[1] = bus2_package;
-    bus_packages[2] = bus3_package;
+    volatile struct dxl_packet *master_packet = &bus->master->packet;
+    volatile struct dxl_packet *bus_packages[3];
+    bus_packages[0] = &bus->bus1_package;
+    bus_packages[1] = &bus->bus2_package;
+    bus_packages[2] = &bus->bus3_package;
     // first we can copy most of the package
     for(int i = 0; i < 3; i++)
     {
@@ -309,25 +310,35 @@ void split_sync_package(struct dxl_bus *bus, struct dxl_packet *master_packet, s
         bus_packages[i]->parameters[2] = master_packet->parameters[2];
         bus_packages[i]->parameters[3] = master_packet->parameters[3];
     }
-
     // compute data length
     int data_length = master_packet->parameters[2] + (master_packet->parameters[3] << 8);
 
     // go through all ids (parameters 4 to end) and split them to the three bus sync packages
     int id;
-    int bus_id_counter[3] = {0,0,0};
-    int connected_bus = 5;
+    int bus_id_counter[3] = {0, 0, 0};
+    int connected_bus = 0;
     for(int i = 4; i < master_packet->parameter_nb; i++)
     {
         id = master_packet->parameters[i];
         connected_bus = bus->devicePorts[id] -1;
+        SerialUSB.println(connected_bus);
+        connected_bus = 0; //todo hardcoded
 
+        SerialUSB.println("split1.0");
         if(master_packet->instruction == DXL_SYNC_WRITE)
         {
             // we need to copy the data to the new package
             // copy from here, data length +1 entries (+1 for the id)
             // copy to +4(for starting 4 bytes) + number of already saved entries * length of entry (data length + 1 for id)
-            std::copy(master_packet->parameters + i, master_packet->parameters + i + data_length + 1, bus_packages[connected_bus]->parameters + 4 + (bus_id_counter[connected_bus] * (data_length +1) ));
+            //std::copy(master_packet->parameters + i, master_packet->parameters + i + data_length + 1, bus_packages[connected_bus]->parameters + 4 + (bus_id_counter[connected_bus] * (data_length +1) ));
+            //memcpy( bus_packages[connected_bus]->parameters + 4 + (bus_id_counter[connected_bus] * (data_length +1) ), master_packet->parameters + i, data_length + 1);
+            for(int j = 0; j < data_length + 1; j++)
+            {
+                int write_position = 4 + (bus_id_counter[connected_bus] * (data_length +1)) + j;
+                int read_position = i+ j;
+                ui8 read_byte = master_packet->parameters[read_position];
+                bus_packages[connected_bus]->parameters[write_position] = read_byte ;
+            }
 
             // we have to skip the data which shall be written to get to the next id
             i = i + data_length;
@@ -345,12 +356,12 @@ void split_sync_package(struct dxl_bus *bus, struct dxl_packet *master_packet, s
     {
         if(master_packet->instruction == DXL_SYNC_WRITE)
         {
-            bus_packages[connected_bus]->parameter_nb = 1 + 2 + 4 + (bus_id_counter[connected_bus] * (data_length +1)) ;
+            bus_packages[i]->parameter_nb = 1 + 2 + 4 + (bus_id_counter[i] * (data_length +1)) ;
         }
         else
         {
             // instruction + crc + 4 first bytes of parameters + number of ids
-            bus_packages[connected_bus]->parameter_nb = 1 + 2 + 4 + bus_id_counter[connected_bus];
+            bus_packages[i]->parameter_nb = 1 + 2 + 4 + bus_id_counter[i];
         }
     }
 
@@ -372,16 +383,14 @@ void dxl_bus_tick(struct dxl_bus *bus)
     if (master_packet->process) {
         // check if it is a sync package, this needs special handling
         if(master_packet->instruction == DXL_SYNC_WRITE || master_packet->instruction == DXL_SYNC_READ){
-        /*    // we need to split the package to the different buses. therefore we need 3 new packages
-            struct dxl_packet *bus1_package;
-            struct dxl_packet *bus2_package;
-            struct dxl_packet *bus3_package;
+            // we need to split the package to the different buses. therefore we need 3 new packages
             //todo initilize? (there is a warning)
-            //split_sync_package(bus, const_cast<struct dxl_packet*>(master_packet), bus1_package, bus2_package, bus3_package);
+            split_sync_package(bus);
             // now send it to the corresponding slaves
-            bus->bus1->process(bus->bus1, bus1_package);
-            bus->bus2->process(bus->bus2, bus2_package);
-            bus->bus3->process(bus->bus3, bus3_package);*/
+            bus->bus1->process(bus->bus1, &bus->bus1_package);
+            bus->bus2->process(bus->bus2, &bus->bus2_package);
+            bus->bus3->process(bus->bus3, &bus->bus3_package);
+
         }else{
             // its a normal package, just send it to everyone. each slave will see if it can handle this package
             for (slave = bus->slaves; slave != NULL; slave = slave->next) {

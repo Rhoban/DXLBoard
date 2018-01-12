@@ -1,4 +1,4 @@
-//#include <algorithm>
+#include <algorithm>
 
 #ifndef DXL_H
 #define DXL_H
@@ -33,7 +33,7 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b);
 int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer);
 void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packet *to);
 unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
-void split_sync_package(struct dxl_bus *bus, struct dxl_packet *master_packet, struct dxl_packet *bus1_package, struct dxl_packet *bus2_package, struct dxl_packet *bus3_package);
+void split_sync_package(struct dxl_bus *bus);
 
 /**
  * A Dynamixel Device which is on the bus
@@ -61,6 +61,9 @@ struct dxl_bus
     volatile struct dxl_device *bus1;
     volatile struct dxl_device *bus2;
     volatile struct dxl_device *bus3;
+    volatile struct dxl_packet bus1_package;
+    volatile struct dxl_packet bus2_package;
+    volatile struct dxl_packet bus3_package;
 };
 
 /**
