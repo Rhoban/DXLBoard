@@ -410,6 +410,11 @@ void dxl_bus_tick(struct dxl_bus *bus)
 
         if (slave->packet.process) {
             // remember which id is on which bus, if this is a dxl_serial_slave
+            SerialUSB.println("aaaaaaaaa");
+            SerialUSB.println((int)slave->packet.id);
+            SerialUSB.println("bbbbbbbbb");
+            SerialUSB.println((int)slave->bus_index;
+            SerialUSB.println("ccccccccc");
             bus->devicePorts[slave->packet.id] = slave->bus_index;
             bus->master->process(bus->master, &slave->packet);
 

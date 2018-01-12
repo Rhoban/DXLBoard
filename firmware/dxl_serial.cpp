@@ -268,6 +268,7 @@ void dxl_serial_init(volatile struct dxl_device *device, int index)
     device->data = (void *)serial;
     device->tick = dxl_serial_tick;
     device->process = process;
+    device->bus_index = index;
 
     serial->index = index;
     serial->txComplete = true;
