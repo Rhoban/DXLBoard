@@ -247,9 +247,8 @@ static void process(volatile struct dxl_device *self, volatile struct dxl_packet
     dxl_serial_tick(self);
 
     if (serial->txComplete) {
-        //todo check if this is a request which packages are on the bus package
-        //todo handle multiple buses
         // Forwarding the packet to the serial bus, if either broadcast or connected device
+        //todo just send things which are actually connected
         //if (packet->id == DXL_BROADCAST || devicePorts[packet->id] == serial->index) {
             self->packet.dxl_state = 0;
             self->packet.process = false;

@@ -321,10 +321,7 @@ void split_sync_package(struct dxl_bus *bus)
     {
         id = master_packet->parameters[i];
         connected_bus = bus->devicePorts[id] -1;
-        SerialUSB.println(connected_bus);
-        connected_bus = 0; //todo hardcoded
 
-        SerialUSB.println("split1.0");
         if(master_packet->instruction == DXL_SYNC_WRITE)
         {
             // we need to copy the data to the new package
@@ -349,6 +346,7 @@ void split_sync_package(struct dxl_bus *bus)
             //sync read only has id
             bus_packages[connected_bus]->parameters[4+bus_id_counter[connected_bus]] = id;
         }
+        bus_id_counter[connected_bus] = bus_id_counter[connected_bus] +1;
     }
 
     //package length
@@ -384,7 +382,6 @@ void dxl_bus_tick(struct dxl_bus *bus)
         // check if it is a sync package, this needs special handling
         if(master_packet->instruction == DXL_SYNC_WRITE || master_packet->instruction == DXL_SYNC_READ){
             // we need to split the package to the different buses. therefore we need 3 new packages
-            //todo initilize? (there is a warning)
             split_sync_package(bus);
             // now send it to the corresponding slaves
             bus->bus1->process(bus->bus1, &bus->bus1_package);
@@ -410,11 +407,6 @@ void dxl_bus_tick(struct dxl_bus *bus)
 
         if (slave->packet.process) {
             // remember which id is on which bus, if this is a dxl_serial_slave
-            SerialUSB.println("aaaaaaaaa");
-            SerialUSB.println((int)slave->packet.id);
-            SerialUSB.println("bbbbbbbbb");
-            SerialUSB.println((int)slave->bus_index;
-            SerialUSB.println("ccccccccc");
             bus->devicePorts[slave->packet.id] = slave->bus_index;
             bus->master->process(bus->master, &slave->packet);
 
