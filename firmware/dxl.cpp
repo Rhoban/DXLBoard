@@ -288,6 +288,8 @@ void dxl_bus_init(struct dxl_bus *bus)
     if (bus != NULL) {
         bus->master = NULL;
         bus->slaves = NULL;
+        bus->syn_read_mode = false;
+        bus->sync_read_packages_returned = 0;
     }
 }
 
@@ -366,6 +368,11 @@ void split_sync_package(struct dxl_bus *bus)
     //checksum will be computed anyway when package is send
 }
 
+struct dxl_packet copy_non_volatile(volatile struct dxl_packet){
+    struct dxl_packet copy;
+    return copy;
+}
+
 /**
  * The execution of the bus loop which reads & dispatch packets
  */
@@ -387,10 +394,20 @@ void dxl_bus_tick(struct dxl_bus *bus)
             bus->bus1->process(bus->bus1, &bus->bus1_package);
             bus->bus2->process(bus->bus2, &bus->bus2_package);
             bus->bus3->process(bus->bus3, &bus->bus3_package);
-
+            if(master_packet->instruction == DXL_SYNC_READ){
+                // remember that the next status packages will have to be ordered before sending it to the master
+                bus->syn_read_mode = true;
+                // remember order
+                bus->sync_read_master_package = master_packet;
+                // reset parameters
+                bus->sync_read_packages_returned = 0;
+                for(int i = 0; i < SYNC_READ_MAX_PACKAGES; i++){
+                    bus->sync_read_is_packages_returned[i] = false;
+                }
+            }
         }else{
             // its a normal package, just send it to everyone. each slave will see if it can handle this package
-            for (slave = bus->slaves; slave != NULL; slave = slave->next) {
+            for (slave = bus->slaves; slave != NULL; slave = slave->next){
                 slave->process(slave, master_packet);
             }
         }
@@ -399,7 +416,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
         master_packet->process = false;
     }
 
-    // Look if the slaves have packets for master
+    // Look if the slaves have status packets for master
     for (slave = bus->slaves; slave != NULL; slave = slave->next) {
         if (slave->tick != NULL) {
             slave->tick(slave);
@@ -408,9 +425,47 @@ void dxl_bus_tick(struct dxl_bus *bus)
         if (slave->packet.process) {
             // remember which id is on which bus, if this is a dxl_serial_slave
             bus->devicePorts[slave->packet.id] = slave->bus_index;
-            bus->master->process(bus->master, &slave->packet);
+            // look if we have to order the status packages
+            if(bus->syn_read_mode){
+                // we have to remember it for later
+                // get position in order
+                int position = 0;
+                for(int i = 4+bus->sync_read_packages_returned; i < bus->sync_read_master_package->parameter_nb; i++){
+                    if(bus->sync_read_master_package->parameters[i] == slave->packet.id){
+                        position = i;
+                        break;
+                    }
+                }
+                //bus->syn_read_recieved_packages[position] = copy_non_volatile(slave->packet);
+                //const dxl_packet local_packet = slave->packet;
+                bus->syn_read_recieved_packages[position] = slave->packet;
+                bus->sync_read_is_packages_returned[position] = true;
+                //memcpy(&(bus->syn_read_recieved_packages[position]), &slave->packet, sizeof(slave->packet));
+            }else{
+                // we can send it directy
+                bus->master->process(bus->master, &slave->packet);
+            }
 
             slave->packet.process = false;
+        }
+    }
+
+    // check if we have saved sync read status packages for the master
+    if(bus->syn_read_mode){
+        //start depending on number of returned packages and go to the end
+        for(int i=4+bus->sync_read_packages_returned; i < bus->sync_read_master_package->parameter_nb; i++){
+            if(bus->sync_read_is_packages_returned[i]){
+                //we have the current package, so send it
+                bus->master->process(bus->master, static_cast<volatile struct dxl_packet*>(&bus->syn_read_recieved_packages[i]));
+                bus->sync_read_packages_returned = bus->sync_read_packages_returned +1;
+            }else{
+                //we don't have it so we cant send the ones later
+                break;
+            }
+        }
+        //check if we returned all status packages or reached timeout
+        if(bus->sync_read_packages_returned + 4 == bus->sync_read_master_package->parameter_nb){ //todo timeout
+            bus->syn_read_mode = false;
         }
     }
 }
