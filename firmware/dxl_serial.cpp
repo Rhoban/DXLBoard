@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <wirish/wirish.h>
 #include <dma.h>
 #include <usart.h>
@@ -45,6 +46,8 @@ struct serial
 struct serial *serials[8] = {0};
 
 static void receiveMode(struct serial *serial);
+
+char sprintfBuffer[120];
 
 // Sync read
 // Are we in sync read mode?
@@ -183,6 +186,8 @@ void initSerial(struct serial *serial, int baudrate = DXL_DEFAULT_BAUDRATE)
 
 void sendSerialPacket(struct serial *serial, volatile struct dxl_packet *packet)
 {
+    //int micro = micros();
+
     // We have a packet for the serial bus
     // First, clear the serial input buffers
     serial->port->flush();
@@ -216,6 +221,8 @@ void sendSerialPacket(struct serial *serial, volatile struct dxl_packet *packet)
     serial->port->waitDataToBeSent();
     receiveMode(serial);
 #endif
+    //sprintf(sprintfBuffer, "sendSerial: %d", micros() - micro);
+    //SerialUSB.println(sprintfBuffer);
 }
 
 
@@ -224,6 +231,9 @@ void sendSerialPacket(struct serial *serial, volatile struct dxl_packet *packet)
  */
 static void dxl_serial_tick(volatile struct dxl_device *self) 
 {
+    //int micro = micros();
+    bool print = false;
+
     struct serial *serial = (struct serial*)self->data;
 
     // Timeout on sending packet, this should never happen
@@ -234,6 +244,7 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
     if (serial->txComplete) {
         // Reading data that come from the serial bus
         while (serial->port->available() && !self->packet.process) {
+            print = true;
             dxl_packet_push_byte(&self->packet, serial->port->read());
             if (self->packet.process) {
                 // A packet is coming from our bus, noting it in the devices allocation
@@ -241,6 +252,10 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
                 devicePorts[self->packet.id] = serial->index;
             }
         }
+    }
+    if(print) {
+        //sprintf(sprintfBuffer, "tickSerial: %d", micros() - micro);
+        //SerialUSB.println(sprintfBuffer);
     }
 }
 
