@@ -89,9 +89,10 @@ struct dxl_bus
     volatile struct dxl_packet bus3_package;
     bool syn_read_mode;
     volatile struct dxl_packet *sync_read_master_package;
-    struct dxl_packet syn_read_recieved_packages[SYNC_READ_MAX_PACKAGES];
+    volatile struct dxl_packet syn_read_recieved_packages[SYNC_READ_MAX_PACKAGES];
     bool sync_read_is_packages_returned [SYNC_READ_MAX_PACKAGES];
     uint8_t sync_read_packages_returned;
+    uint8_t sync_read_packages_recieved;
 };
 
 /**
