@@ -51,6 +51,7 @@ struct dxl_packet {
 
 void dxl_packet_init(volatile struct dxl_packet *packet);
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b);
+void dxl_packet_push_byte_nocrc(volatile struct dxl_packet *packet, ui8 b);
 int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer);
 void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packet *to);
 unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
@@ -96,6 +97,8 @@ struct dxl_bus
     uint8_t sync_read_packages_recieved;
     uint8_t super_sync_packages_recieved;
     volatile struct dxl_packet super_sync_return_packet;
+    int master_time;
+    int status_time;
 
 };
 

@@ -48,7 +48,7 @@ void dxl_packet_init(volatile struct dxl_packet *packet) {
     packet->process = false;
 }
 
-char buffer[120];
+char sprint_buffer[120];
 
 
 /**
@@ -136,8 +136,9 @@ static int dxl_unstuff(volatile unsigned char *packet, int n)
     int ff = 0;
     int ff_fd = 0;
     int k = 0;
+    bool copy;
     for (int i=0; i<n; i++) {
-        bool copy = true;
+        copy = true;
         if (ff_fd) {
             ff_fd = 0;
             if (packet[i] == 0xfd) {
@@ -164,6 +165,100 @@ static int dxl_unstuff(volatile unsigned char *packet, int n)
     }
 
     return n-k;
+}
+void dxl_packet_push_byte_nocrc(volatile struct dxl_packet *packet, ui8 b)
+{
+    switch (packet->dxl_state) {
+        case 0:
+        case 1:
+            if (b != 0xff) {
+                goto pc_error;
+            }
+            break;
+        case 2:
+            if (b != 0xfd) {
+                goto pc_error;
+            }
+            break;
+        case 3:
+            if (b != 0x00) {
+                goto pc_error;
+            }
+            break;
+        case 4:
+            if (b== 0xff or b==0xfd){
+                //we are not reading a header but some data bytes which were stuffed
+                goto pc_error;
+            }
+            packet->id = b;
+            break;
+        case 5:
+            packet->parameter_nb = b;
+            if (b < 0 || b >= DXL_MAX_PARAMS) {
+                goto pc_error;
+            }
+            break;
+        case 6:
+            packet->parameter_nb += (b<<8);
+            packet->parameter_nb -= 3;
+            break;
+        case 7:
+            packet->instruction = b;
+            if(b==0x01){
+                //this is a ping which does not have any parameters. Next must be the crc
+                packet->dxl_state = 0xffff;
+            }
+            break;
+        case 0x10000:
+            packet->crc16 -= b&0xff;
+            break;
+        case 0x10001:
+            packet->crc16 -= (b<<8)&0xff00;
+            goto pc_ended;
+            break;
+        default:
+            //handle parameters
+            unsigned int err_byte =0;
+            if(packet->instruction == 0x55){
+                //this is a status package, we have to handle the error byte
+                err_byte =1;
+            }
+
+            //this is the error byte, handle it
+            if(err_byte && packet->dxl_state == 8){
+                packet->error = b;
+                //number of parameters has to be reduced by one, since one byte after length is the error byte
+                packet->parameter_nb -= 1;
+            }else {
+                //normal parameter bytes
+                packet->parameters[packet->dxl_state - 8 - err_byte] = b;
+            }
+
+            if (packet->dxl_state - 8 > DXL_MAX_PARAMS) {
+                goto pc_error;
+            }
+
+            if (packet->dxl_state-7-err_byte >= packet->parameter_nb) {
+                packet->dxl_state = 0xffff;
+            }
+
+            break;
+    }
+
+    packet->dxl_state++;
+    return;
+
+    pc_ended:
+        packet->parameter_nb = dxl_unstuff(packet->parameters, packet->parameter_nb);
+        packet->process = true;
+
+
+    packet->crc16 = 0;
+    packet->dxl_state = 0;
+    return;
+    pc_error:
+    packet->crc16 = 0;
+    packet->dxl_state = 0;
 }
 
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
@@ -298,6 +393,8 @@ void dxl_bus_init(struct dxl_bus *bus)
         bus->super_sync_return_packet.id = DXL_BROADCAST;
         bus->super_sync_read_mode = false;
         bus->super_sync_packages_recieved =0;
+        bus->status_time = micros();
+        bus->master_time = micros();
     }
 }
 
@@ -399,6 +496,9 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
+        //bus->master_time = micros();
+        sprintf(sprint_buffer, "master %d", micros());
+        SerialUSB.println(sprint_buffer);
         // check if it is a sync package, this needs special handling
         if(master_packet->instruction == DXL_SYNC_WRITE || master_packet->instruction == DXL_SYNC_READ || master_packet->instruction == SUPER_SYNC_READ) {
             // we need to split the package to the different buses. therefore we need 3 new packages
@@ -446,6 +546,14 @@ void dxl_bus_tick(struct dxl_bus *bus)
         }
 
         if (slave->packet.process) {
+            //sprintf(sprint_buffer, "status %d", micros());
+            //SerialUSB.println(sprint_buffer);
+            /*sprintf(sprint_buffer, "status to status %d", micros()- bus->status_time);
+            SerialUSB.println(sprint_buffer);
+            sprintf(sprint_buffer, "master to status %d", micros()- bus->master_time);
+            SerialUSB.println(sprint_buffer);
+            bus->status_time = micros();*/
+
             // remember which id is on which bus, if this is a dxl_serial_slave
             bus->devicePorts[slave->packet.id] = slave->bus_index;
             // look if we have to order the status packages
@@ -511,7 +619,8 @@ void dxl_bus_tick(struct dxl_bus *bus)
 
     //check if we are in sync read mode and recieved all packages
     if(bus->syn_read_mode && bus->sync_read_master_package->parameter_nb -4 == bus->sync_read_packages_recieved){
-
+        sprintf(sprint_buffer, "last status %d", micros());
+        SerialUSB.println(sprint_buffer);
         for(int i = 4;i < bus->sync_read_master_package->parameter_nb; i++ ){
             //return all status packages
             bus->master->process(bus->master, &bus->syn_read_recieved_packages[i]);
@@ -519,7 +628,8 @@ void dxl_bus_tick(struct dxl_bus *bus)
 
         bus->syn_read_mode = false;
         bus->sync_read_packages_recieved = 0;
-
+        sprintf(sprint_buffer, "last status send %d", micros());
+        SerialUSB.println(sprint_buffer);
 
     }
 

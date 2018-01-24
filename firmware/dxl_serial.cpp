@@ -233,7 +233,7 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
     if (serial->txComplete) {
         // Reading data that come from the serial bus
         while (serial->port->available() && !self->packet.process) {
-            dxl_packet_push_byte(&self->packet, serial->port->read());
+            dxl_packet_push_byte_nocrc(&self->packet, serial->port->read());
         }
     }
 }
