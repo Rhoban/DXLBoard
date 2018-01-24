@@ -48,6 +48,8 @@ struct serial *serials[8] = {0};
 static void receiveMode(struct serial *serial);
 
 char sprintfBuffer[120];
+ui8 status_send_buffer[DXL_BUFFER_SIZE];
+
 
 // Sync read
 // Are we in sync read mode?
@@ -242,17 +244,23 @@ static void dxl_serial_tick(volatile struct dxl_device *self)
     }
  
     if (serial->txComplete) {
+        int n =0;
         // Reading data that come from the serial bus
         while (serial->port->available() && !self->packet.process) {
             print = true;
-            dxl_packet_push_byte(&self->packet, serial->port->read());
-            if (self->packet.process) {
+            status_send_buffer[n] = serial->port->read();
+            n++;
+            //delayMicroseconds(1);//todo depends on baudrate
+            //dxl_packet_push_byte(&self->packet, serial->port->read());
+            /*if (self->packet.process) {
                 // A packet is coming from our bus, noting it in the devices allocation
                 // table
                 devicePorts[self->packet.id] = serial->index;
-            }
+            }*/
         }
+        SerialUSB.write(status_send_buffer, n);
     }
+
     if(print) {
         //sprintf(sprintfBuffer, "tickSerial: %d", micros() - micro);
         //SerialUSB.println(sprintfBuffer);

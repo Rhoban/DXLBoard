@@ -56,8 +56,8 @@ void setup()
     
     // Add the Serial-forward dynamixel device as a slave
     dxl_serial_init(&slaves[k++], 1);
-    dxl_serial_init(&slaves[k++], 2);
-    dxl_serial_init(&slaves[k++], 3);
+    //dxl_serial_init(&slaves[k++], 2);
+    //dxl_serial_init(&slaves[k++], 3);
 
     // Add the ADC dynamixel on the bus, id 240
     // dxl_adc_init(&slaves[k++], 240);
