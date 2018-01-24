@@ -18,6 +18,8 @@
 #define DXL_BULK_READ   0x92
 #define DXL_BULK_WRITE  0x93
 
+#define SUPER_SYNC_READ 0x84
+
 #define DXL_NO_ERROR    0x00
 
 void dxl_process(

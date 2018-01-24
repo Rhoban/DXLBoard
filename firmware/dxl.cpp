@@ -294,13 +294,15 @@ void dxl_bus_init(struct dxl_bus *bus)
         bus->syn_read_mode = false;
         bus->sync_read_packages_returned = 0;
         bus->sync_read_packages_recieved = 0;
+        bus->super_sync_return_packet.instruction = SUPER_SYNC_READ;
+        bus->super_sync_return_packet.id = DXL_BROADCAST;
+        bus->super_sync_read_mode = false;
+        bus->super_sync_packages_recieved =0;
     }
 }
 
 void split_sync_package(struct dxl_bus *bus)
 {
-    int micro = micros();
-
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     volatile struct dxl_packet *bus_packages[3];
     bus_packages[0] = &bus->bus1_package;
@@ -309,7 +311,11 @@ void split_sync_package(struct dxl_bus *bus)
     // first we can copy most of the package
     for(int i = 0; i < 3; i++)
     {
-        bus_packages[i]->instruction = master_packet->instruction;
+        if(master_packet->instruction == SUPER_SYNC_READ){
+            bus_packages[i]->instruction = DXL_SYNC_READ;
+        }else {
+            bus_packages[i]->instruction = master_packet->instruction;
+        }
         bus_packages[i]->error = master_packet->error;
         bus_packages[i]->id = master_packet->id;
         // starting address and data length
@@ -362,16 +368,14 @@ void split_sync_package(struct dxl_bus *bus)
     {
         if(master_packet->instruction == DXL_SYNC_WRITE)
         {
-            bus_packages[i]->parameter_nb = 1 + 2 + 4 + (bus_id_counter[i] * (data_length +1)) ;
+            bus_packages[i]->parameter_nb = 4 + (bus_id_counter[i] * (data_length +1)) ;
         }
         else
         {
             // instruction + crc + 4 first bytes of parameters + number of ids
-            bus_packages[i]->parameter_nb = 1 + 2 + 4 + bus_id_counter[i];
+            bus_packages[i]->parameter_nb = 4 + bus_id_counter[i];
         }
     }
-    sprintf(buffer, "split %d", micros()- micro);
-    SerialUSB.println(buffer);
 
     //checksum will be computed anyway when package is send
 }
@@ -386,6 +390,7 @@ struct dxl_packet copy_non_volatile(volatile struct dxl_packet){
  */
 void dxl_bus_tick(struct dxl_bus *bus)
 {
+
     volatile struct dxl_device *slave;
 
     // If the master has a packet, dispatch it to all the slaves
@@ -395,29 +400,33 @@ void dxl_bus_tick(struct dxl_bus *bus)
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
         // check if it is a sync package, this needs special handling
-        if(master_packet->instruction == DXL_SYNC_WRITE || master_packet->instruction == DXL_SYNC_READ){
-            //int micro = micros();
+        if(master_packet->instruction == DXL_SYNC_WRITE || master_packet->instruction == DXL_SYNC_READ || master_packet->instruction == SUPER_SYNC_READ) {
             // we need to split the package to the different buses. therefore we need 3 new packages
             split_sync_package(bus);
             // now send it to the corresponding slaves
-            //int micro2 = micros();
             bus->bus1->process(bus->bus1, &bus->bus1_package);
             bus->bus2->process(bus->bus2, &bus->bus2_package);
             bus->bus3->process(bus->bus3, &bus->bus3_package);
-            //sprintf(buffer, "in tick sending %d", micros()- micro2);
-            //SerialUSB.println(buffer);
-            if(master_packet->instruction == DXL_SYNC_READ){
+            if (master_packet->instruction == DXL_SYNC_READ) {
                 // remember that the next status packages will have to be ordered before sending it to the master
                 bus->syn_read_mode = true;
                 // remember order
                 bus->sync_read_master_package = master_packet;
                 // reset parameters
                 bus->sync_read_packages_returned = 0;
-                for(int i = 0; i < SYNC_READ_MAX_PACKAGES; i++){
+                for (int i = 0; i < SYNC_READ_MAX_PACKAGES; i++) {
                     bus->sync_read_is_packages_returned[i] = false;
                 }
-                //sprintf(buffer, "in tick %d", micros()- micro);
-                //SerialUSB.println(buffer);
+            }else if(master_packet->instruction == SUPER_SYNC_READ) {
+                bus->super_sync_read_mode = true;
+                bus->super_sync_packages_recieved = 0;
+                bus->sync_read_master_package = master_packet;
+                int data_length = bus->sync_read_master_package->parameters[2] + (bus->sync_read_master_package->parameters[3] << 8);
+                bus->super_sync_return_packet.parameter_nb = (data_length +1 ) * (bus->sync_read_master_package->parameter_nb -4);
+                bus->super_sync_return_packet.parameters[0] = bus->sync_read_master_package->parameters[0];
+                bus->super_sync_return_packet.parameters[1] = bus->sync_read_master_package->parameters[1];
+                bus->super_sync_return_packet.parameters[2] = bus->sync_read_master_package->parameters[2];
+                bus->super_sync_return_packet.parameters[3] = bus->sync_read_master_package->parameters[3];
             }
         }else{
             // its a normal package, just send it to everyone. each slave will see if it can handle this package
@@ -440,23 +449,31 @@ void dxl_bus_tick(struct dxl_bus *bus)
             // remember which id is on which bus, if this is a dxl_serial_slave
             bus->devicePorts[slave->packet.id] = slave->bus_index;
             // look if we have to order the status packages
-            if(bus->syn_read_mode){
+            if(bus->syn_read_mode || bus->super_sync_read_mode) {
                 // we have to remember it for later
                 // get position in order
                 int position = 0;
-                for(int i = 4+bus->sync_read_packages_returned; i < bus->sync_read_master_package->parameter_nb; i++){
-                    if(bus->sync_read_master_package->parameters[i] == slave->packet.id){
+                for (int i = 4 + bus->sync_read_packages_returned;
+                     i < bus->sync_read_master_package->parameter_nb; i++) {
+                    if (bus->sync_read_master_package->parameters[i] == slave->packet.id) {
                         position = i;
                         break;
                     }
                 }
-                //bus->syn_read_recieved_packages[position] = copy_non_volatile(slave->packet);
-                //const dxl_packet local_packet = slave->packet;
-                dxl_copy_packet(&slave->packet, &bus->syn_read_recieved_packages[position]);
-                //bus->syn_read_recieved_packages[position] = slave->packet;
-                bus->sync_read_is_packages_returned[position] = true;
-                bus->sync_read_packages_recieved++;
-                //memcpy(&(bus->syn_read_recieved_packages[position]), &slave->packet, sizeof(slave->packet));
+                if(bus->syn_read_mode) {
+                    dxl_copy_packet(&slave->packet, &bus->syn_read_recieved_packages[position]);
+                    bus->sync_read_is_packages_returned[position] = true;
+                    bus->sync_read_packages_recieved++;
+                }else{
+                    //super sync
+                    int data_length = bus->sync_read_master_package->parameters[2] + (bus->sync_read_master_package->parameters[3] << 8);
+                    bus->super_sync_return_packet.parameters[position*(data_length+1)] = slave->packet.error;
+                    for(int i =0; i< data_length;i++) {
+                        bus->super_sync_return_packet.parameters[position * (data_length + 1) +
+                                                                 i] = slave->packet.parameters[4+i];
+                    }
+                    bus->super_sync_packages_recieved++;
+                }
             }else{
                 // we can send it directy
                 bus->master->process(bus->master, &slave->packet);
@@ -467,9 +484,10 @@ void dxl_bus_tick(struct dxl_bus *bus)
         }
     }
 
+    /*
     // check if we have saved sync read status packages for the master
-    /*if(bus->syn_read_mode){
-        int micro = micros();
+    if(bus->syn_read_mode){
+        //int micro = micros();
 
         //start depending on number of returned packages and go to the end
         for(int i=4+bus->sync_read_packages_returned; i < bus->sync_read_master_package->parameter_nb; i++){
@@ -487,20 +505,29 @@ void dxl_bus_tick(struct dxl_bus *bus)
             bus->syn_read_mode = false;
         }
 
-        sprintf(buffer, "in tick3 %d", micros()- micro);
-        SerialUSB.println(buffer);
+        //sprintf(buffer, "in tick3 %d", micros()- micro);
+        //SerialUSB.println(buffer);
     }*/
 
     //check if we are in sync read mode and recieved all packages
     if(bus->syn_read_mode && bus->sync_read_master_package->parameter_nb -4 == bus->sync_read_packages_recieved){
-        int micro = micros();
 
         for(int i = 4;i < bus->sync_read_master_package->parameter_nb; i++ ){
+            //return all status packages
             bus->master->process(bus->master, &bus->syn_read_recieved_packages[i]);
         }
-        sprintf(buffer, "returning %d", micros()- micro);
-        SerialUSB.println(buffer);
+
+        bus->syn_read_mode = false;
+        bus->sync_read_packages_recieved = 0;
+
+
     }
 
+
+    if(bus->super_sync_read_mode && bus->sync_read_master_package->parameter_nb -4 == bus->super_sync_packages_recieved){
+        bus->master->process(bus->master, &bus->super_sync_return_packet);
+        bus->super_sync_read_mode = false;
+        bus->super_sync_packages_recieved = 0;
+    }
 
 }

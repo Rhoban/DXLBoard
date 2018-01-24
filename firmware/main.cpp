@@ -70,10 +70,10 @@ void setup()
     // dxl_adc_init(&slaves[k++], 240);
 
     // Add the IMU dynamixel, id 241, port Serial2
-    dxl_gy85_init(&slaves[k++], 241, I2C1);
+    //dxl_gy85_init(&slaves[k++], 241, I2C1);
 
     // Adding pins
-    dxl_pins_init(&slaves[k++], 242);
+    //dxl_pins_init(&slaves[k++], 242);
 
     // Add a magnetic coder on the bus, ID 235
     // dxl_magnetic_coder_init(&slaves[k++], 3, 235);
