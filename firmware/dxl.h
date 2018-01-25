@@ -1,5 +1,7 @@
 //#include <algorithm>
 #include <cstring>
+#include <wirish/wirish.h>
+
 
 #ifndef DXL_H
 #define DXL_H
@@ -8,7 +10,7 @@
 #define DXL_BROADCAST   0xFE
 
 // Size limit for a buffer containing a dynamixel packet
-#define DXL_BUFFER_SIZE 330
+#define DXL_BUFFER_SIZE 500
 
 // Maximum parameters in a packet
 #define DXL_MAX_PARAMS  240

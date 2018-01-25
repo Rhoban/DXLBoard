@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <gpio.h>
-#include <wirish/wirish.h>
 #include "dxl.h"
 #include "dxl_protocol.h"
 
@@ -496,9 +495,6 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
-        //bus->master_time = micros();
-        sprintf(sprint_buffer, "master %d", micros());
-        SerialUSB.println(sprint_buffer);
         // check if it is a sync package, this needs special handling
         if(master_packet->instruction == DXL_SYNC_WRITE || master_packet->instruction == DXL_SYNC_READ || master_packet->instruction == SUPER_SYNC_READ) {
             // we need to split the package to the different buses. therefore we need 3 new packages
@@ -546,6 +542,11 @@ void dxl_bus_tick(struct dxl_bus *bus)
         }
 
         if (slave->packet.process) {
+            bus->devicePorts[slave->packet.id] = slave->bus_index;
+            bus->master->process(bus->master, &slave->packet);
+
+            slave->packet.process = false;
+
             //sprintf(sprint_buffer, "status %d", micros());
             //SerialUSB.println(sprint_buffer);
             /*sprintf(sprint_buffer, "status to status %d", micros()- bus->status_time);
@@ -553,7 +554,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
             sprintf(sprint_buffer, "master to status %d", micros()- bus->master_time);
             SerialUSB.println(sprint_buffer);
             bus->status_time = micros();*/
-
+/*
             // remember which id is on which bus, if this is a dxl_serial_slave
             bus->devicePorts[slave->packet.id] = slave->bus_index;
             // look if we have to order the status packages
@@ -587,7 +588,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
                 bus->master->process(bus->master, &slave->packet);
             }
 
-            slave->packet.process = false;
+            slave->packet.process = false;*/
 
         }
     }
@@ -616,7 +617,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
         //sprintf(buffer, "in tick3 %d", micros()- micro);
         //SerialUSB.println(buffer);
     }*/
-
+/*
     //check if we are in sync read mode and recieved all packages
     if(bus->syn_read_mode && bus->sync_read_master_package->parameter_nb -4 == bus->sync_read_packages_recieved){
         sprintf(sprint_buffer, "last status %d", micros());
@@ -639,5 +640,5 @@ void dxl_bus_tick(struct dxl_bus *bus)
         bus->super_sync_read_mode = false;
         bus->super_sync_packages_recieved = 0;
     }
-
+*/
 }
