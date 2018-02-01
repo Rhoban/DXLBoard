@@ -52,6 +52,7 @@ struct i2c_msg packet;
 static uint8 gyro_reset[] = {0x3e, 0x80};
 static uint8 gyro_scale[] = {0x16, 0b00011010};
 static uint8 gyro_100hz[] = {0x15, 0x09};
+static uint8 gyro_200hz[] = {0x15, 0x04};
 static uint8 gyro_pll[] = {0x3e, 0x00};
 static uint8 gyro_req[] = {0x1d};
 
@@ -59,13 +60,14 @@ static uint8 gyro_req[] = {0x1d};
 static uint8 acc_measure[] = {0x2d, 0x08};
 static uint8 acc_resolution[] = {0x31, 0x08};
 static uint8 acc_100hz[] = {0x2c, 0x0a};
+static uint8 acc_200hz[] = {0x2c, 0x0b};
 static uint8 acc_req[] = {0x32};
 
 // Magnetometer packets
-static uint8 magn_continuous[] = {0x02, 0x00};
+/*static uint8 magn_continuous[] = {0x02, 0x00};
 static uint8 magn_100hz[] = {0x00, 0b00011000};
 static uint8 magn_sens[] = {0x01, 0b10000000};
-static uint8 magn_req[] = {0x03};
+static uint8 magn_req[] = {0x03};*/
 
 void gy85_init(i2c_dev *dev)
 {
@@ -74,7 +76,7 @@ void gy85_init(i2c_dev *dev)
     i2c_master_enable(dev, I2C_FAST_MODE);
 
     // Initializing magnetometer
-    packet.addr = MAGN_ADDR;
+    /*packet.addr = MAGN_ADDR;
     packet.flags = 0;
     packet.data = magn_continuous;
     packet.length = 2;
@@ -84,7 +86,7 @@ void gy85_init(i2c_dev *dev)
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     packet.data = magn_sens;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;*/
 
     // Initializing accelerometer
     packet.addr = ACC_ADDR;
@@ -96,7 +98,7 @@ void gy85_init(i2c_dev *dev)
     packet.data = acc_resolution;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
-    packet.data = acc_100hz;
+    packet.data = acc_200hz;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     // Initializing gyroscope
@@ -108,7 +110,7 @@ void gy85_init(i2c_dev *dev)
 
     packet.data = gyro_scale;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
-    packet.data = gyro_100hz;
+    packet.data = gyro_200hz;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
     packet.data = gyro_pll;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
@@ -120,7 +122,7 @@ init_error:
     gy85initialized = false;
 }
 
-void magn_update(i2c_dev *dev, struct gy85_value *values)
+/*void magn_update(i2c_dev *dev, struct gy85_value *values)
 {
     if (!gy85initialized) return;
 
@@ -142,7 +144,7 @@ void magn_update(i2c_dev *dev, struct gy85_value *values)
     values->magn_y = VALUE_SIGN(values->magn_y, 16);
     values->magn_z = ((buffer[4]&0xff)<<8)|(buffer[5]&0xff);
     values->magn_z = VALUE_SIGN(values->magn_z, 16);
-}
+}*/
 
 void gyro_update(i2c_dev *dev, struct gy85_value *values)
 {
@@ -200,7 +202,7 @@ void gy85_update(i2c_dev *dev, struct gy85_value *value, int sensor)
         // XXX: We should populate value with the last known value, even if
         // it fails
         if (sensor == 0) gyro_update(dev, value);
-        if (sensor == 1) magn_update(dev, value);
-        if (sensor == 2) acc_update(dev, value);
+        if (sensor == 1) acc_update(dev, value);
+        //if (sensor == 2) magn_update(dev, value);
     }
 }

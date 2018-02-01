@@ -8,7 +8,6 @@
 
 
 volatile int dxl_debug = 0;
-char buffer[120];
 
 const unsigned short crc_table[256] = {
         0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
@@ -61,10 +60,12 @@ int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer)
     unsigned int length;
     unsigned int err_bytes =0;
 
+    //header
     buffer[pos++] = 0xff;
     buffer[pos++] = 0xff;
     buffer[pos++] = 0xfd;
     buffer[pos++] = 0x00;
+
     buffer[pos++] = packet->id;
     length = pos;
     pos += 2;
@@ -116,7 +117,6 @@ void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packe
  */
 unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size)
 {
-    //int micro = micros();
     unsigned short i, j;
 
     for(j = 0; j < data_blk_size; j++)
@@ -125,8 +125,6 @@ unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr,
         crc_accum = (crc_accum << 8) ^ crc_table[i];
     }
 
-    //sprintf(buffer, "crc %d", micros()- micro);
-    //SerialUSB.println(buffer);
     return crc_accum;
 }
 
@@ -171,7 +169,6 @@ static int dxl_unstuff(volatile unsigned char *packet, int n)
 
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
 {
-    //int micro = micros();
     switch (packet->dxl_state) {
         case 0:
         case 1:
@@ -254,8 +251,6 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
     }
 
     packet->dxl_state++;
-    //sprintf(buffer, "push_byte_run %d", micros()- micro);
-    //SerialUSB.println(buffer);
     return;
 
     pc_ended:
@@ -266,15 +261,10 @@ void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b)
 
     packet->crc16 = 0;
     packet->dxl_state = 0;
-    //sprintf(buffer, "push_byte_end %d", micros()- micro);
-    //SerialUSB.println(buffer);
     return;
     pc_error:
     packet->crc16 = 0;
     packet->dxl_state = 0;
-
-    //sprintf(buffer, "push_byte_err %d", micros()- micro);
-    //SerialUSB.println(buffer);
 }
 
 void dxl_device_init(volatile struct dxl_device *device)
@@ -303,8 +293,6 @@ void dxl_bus_init(struct dxl_bus *bus)
         bus->master = NULL;
         bus->slaves = NULL;
     }
-    bus->last_master_package = micros();
-    bus->last_status_package = micros();
 }
 
 /**
@@ -320,15 +308,9 @@ void dxl_bus_tick(struct dxl_bus *bus)
     // If there is a packet to process from the master
     volatile struct dxl_packet *master_packet = &bus->master->packet;
     if (master_packet->process) {
-        //sprintf(buffer, "master to master %d", micros()- bus->last_master_package);
-        //SerialUSB.println(buffer);
-        //sprintf(buffer, "status to master %d", micros()- bus->last_status_package);
-        //SerialUSB.println(buffer);
-        bus->last_master_package = micros();
         for (slave = bus->slaves; slave != NULL; slave = slave->next) {
             slave->process(slave, master_packet);
         }
-
         master_packet->process = false;
     }
 
@@ -339,14 +321,7 @@ void dxl_bus_tick(struct dxl_bus *bus)
         }
 
         if (slave->packet.process) {
-            //sprintf(buffer, "master to status %d", micros()- bus->last_master_package);
-            //SerialUSB.println(buffer);
-            //sprintf(buffer, "status to status %d", micros()- bus->last_status_package);
-            //SerialUSB.println(buffer);
-            //bus->last_status_package = micros();
-
             bus->master->process(bus->master, &slave->packet);
-
             slave->packet.process = false;
         }
     }

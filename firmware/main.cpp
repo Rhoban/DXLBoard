@@ -56,6 +56,7 @@ void setup()
     
     // Add the Serial-forward dynamixel device as a slave
     dxl_serial_init(&slaves[k++], 1);
+    // We can only use one bus with this version (see other git branch for multi bus)
     //dxl_serial_init(&slaves[k++], 2);
     //dxl_serial_init(&slaves[k++], 3);
 

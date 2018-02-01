@@ -7,7 +7,7 @@
 #include "gy85.h"
 
 #define GY85_ADDR       0x24
-#define BUFFERS 5
+#define BUFFERS 2
 
 struct gy85
 {
@@ -45,10 +45,10 @@ void gy85_tick(struct gy85 *gy85)
     int now = millis();
     int delta = now-gy85->lastUpdate;
 
-    if (gy85->state < 3) {
+    if (gy85->state < 2) {
         gy85_update(gy85->dev, &gy85->values[gy85->pos], gy85->state);
         gy85->state++;
-        if (gy85->state >= 3) {
+        if (gy85->state >= 2) {
             gy85->sequence++;
             gy85->values[gy85->pos].sequence = gy85->sequence;
             gy85->pos++;
@@ -57,8 +57,8 @@ void gy85_tick(struct gy85 *gy85)
             }
         }
     } else {
-        if (delta >= 10) {
-            gy85->lastUpdate += 10;
+        if (delta >= 5) {
+            gy85->lastUpdate += 5;
             gy85->state = 0;
         } else if (delta < 0) {
             gy85->lastUpdate = millis();

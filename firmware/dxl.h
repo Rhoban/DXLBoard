@@ -54,8 +54,6 @@ struct dxl_bus
 {
     volatile struct dxl_device *master;
     volatile struct dxl_device *slaves;
-    int last_master_package;
-    int last_status_package;
 };
 
 /**
