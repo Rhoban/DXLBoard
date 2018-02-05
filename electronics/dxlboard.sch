@@ -2478,10 +2478,16 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 </class>
 </classes>
 <parts>
-<part name="MAPLE" library="rhoban" deviceset="MAPLE_MINI" device=""/>
-<part name="485-1" library="rhoban" deviceset="CONNEC_1X04" device="_485"/>
+<part name="MAPLE" library="rhoban" deviceset="MAPLE_MINI" device="">
+<attribute name="FARNELL" value="1593469,1593469"/>
+</part>
+<part name="485-1" library="rhoban" deviceset="CONNEC_1X04" device="_485">
+<attribute name="FARNELL" value="1104204"/>
+</part>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
-<part name="MAX485" library="rhoban" deviceset="MAX485" device=""/>
+<part name="MAX485" library="rhoban" deviceset="MAX485" device="">
+<attribute name="FARNELL" value="1564306"/>
+</part>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
 <part name="P+7" library="supply1" deviceset="VCC" device=""/>
 <part name="P+8" library="supply1" deviceset="VCC" device=""/>
@@ -2504,7 +2510,9 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="P+5" library="supply1" deviceset="VCC" device=""/>
 <part name="R5" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
 <part name="R6" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
-<part name="D1" library="SparkFun-DiscreteSemi" deviceset="DIODE" device="SOD"/>
+<part name="D1" library="SparkFun-DiscreteSemi" deviceset="DIODE" device="SOD">
+<attribute name="FARNELL" value="8737843RL"/>
+</part>
 <part name="R7" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="1.5K"/>
 <part name="R8" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
 <part name="R9" library="rhoban" deviceset="RESISTANCE" device="-R0805"/>
@@ -2515,11 +2523,19 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="R10" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="2K"/>
 <part name="R11" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
-<part name="U$6" library="rhoban" deviceset="GY-85" device=""/>
-<part name="TTL1" library="rhoban" deviceset="CONNEC_1X03" device="_TTL"/>
-<part name="485-2" library="rhoban" deviceset="CONNEC_1X04" device="_485"/>
+<part name="U$6" library="rhoban" deviceset="GY-85" device="">
+<attribute name="FARNELL" value="1593463"/>
+</part>
+<part name="TTL1" library="rhoban" deviceset="CONNEC_1X03" device="_TTL">
+<attribute name="FARNELL" value="9979620"/>
+</part>
+<part name="485-2" library="rhoban" deviceset="CONNEC_1X04" device="_485">
+<attribute name="FARNELL" value="1104204"/>
+</part>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
-<part name="MAX1" library="rhoban" deviceset="MAX485" device=""/>
+<part name="MAX1" library="rhoban" deviceset="MAX485" device="">
+<attribute name="FARNELL" value="1564306"/>
+</part>
 <part name="GND4" library="supply1" deviceset="GND" device=""/>
 <part name="P+2" library="supply1" deviceset="VCC" device=""/>
 <part name="P+3" library="supply1" deviceset="VCC" device=""/>
@@ -2538,10 +2554,16 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="R16" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="2K"/>
 <part name="R17" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
-<part name="TTL2" library="rhoban" deviceset="CONNEC_1X03" device="_TTL"/>
-<part name="485-3" library="rhoban" deviceset="CONNEC_1X04" device="_485"/>
+<part name="TTL2" library="rhoban" deviceset="CONNEC_1X03" device="_TTL">
+<attribute name="FARNELL" value="9979620"/>
+</part>
+<part name="485-3" library="rhoban" deviceset="CONNEC_1X04" device="_485">
+<attribute name="FARNELL" value="1104204"/>
+</part>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
-<part name="MAX2" library="rhoban" deviceset="MAX485" device=""/>
+<part name="MAX2" library="rhoban" deviceset="MAX485" device="">
+<attribute name="FARNELL" value="1564306"/>
+</part>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
 <part name="P+12" library="supply1" deviceset="VCC" device=""/>
 <part name="P+13" library="supply1" deviceset="VCC" device=""/>
@@ -2560,7 +2582,9 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <part name="R22" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="2K"/>
 <part name="R23" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="3K"/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
-<part name="TTL3" library="rhoban" deviceset="CONNEC_1X03" device="_TTL"/>
+<part name="TTL3" library="rhoban" deviceset="CONNEC_1X03" device="_TTL">
+<attribute name="FARNELL" value="9979620"/>
+</part>
 <part name="R8S3" library="rhoban" deviceset="RESISTANCE" device="-R0805" value="22"/>
 <part name="GPIO2" library="rhoban" deviceset="CONNEC_1X06" device=""/>
 </parts>
@@ -2575,10 +2599,16 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <text x="-78.74" y="-60.96" size="6.4516" layer="95">IMU</text>
 </plain>
 <instances>
-<instance part="MAPLE" gate="G$1" x="-45.72" y="73.66"/>
-<instance part="485-1" gate="G$1" x="27.94" y="40.64"/>
+<instance part="MAPLE" gate="G$1" x="-45.72" y="73.66">
+<attribute name="FARNELL" x="-45.72" y="73.66" size="1.778" layer="96" display="off"/>
+</instance>
+<instance part="485-1" gate="G$1" x="27.94" y="40.64">
+<attribute name="FARNELL" x="27.94" y="40.64" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="GND10" gate="1" x="12.7" y="50.8" rot="R180"/>
-<instance part="MAX485" gate="A" x="68.58" y="48.26"/>
+<instance part="MAX485" gate="A" x="68.58" y="48.26">
+<attribute name="FARNELL" x="68.58" y="48.26" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="GND11" gate="1" x="48.26" y="33.02"/>
 <instance part="P+7" gate="VCC" x="48.26" y="55.88"/>
 <instance part="P+8" gate="VCC" x="104.14" y="60.96"/>
@@ -2601,7 +2631,9 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <instance part="P+5" gate="VCC" x="-106.68" y="60.96"/>
 <instance part="R5" gate="G$1" x="-104.14" y="43.18"/>
 <instance part="R6" gate="G$1" x="-104.14" y="40.64"/>
-<instance part="D1" gate="G$1" x="-106.68" y="53.34" rot="R90"/>
+<instance part="D1" gate="G$1" x="-106.68" y="53.34" rot="R90">
+<attribute name="FARNELL" x="-106.68" y="53.34" size="1.778" layer="96" rot="R90" display="off"/>
+</instance>
 <instance part="R7" gate="G$1" x="-111.76" y="33.02" rot="R90"/>
 <instance part="R8" gate="G$1" x="-106.68" y="-22.86" rot="R90"/>
 <instance part="R9" gate="G$1" x="-106.68" y="-38.1" rot="R90"/>
@@ -2612,11 +2644,19 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <instance part="R10" gate="G$1" x="93.98" y="58.42" rot="R90"/>
 <instance part="R11" gate="G$1" x="106.68" y="68.58" rot="R180"/>
 <instance part="GND2" gate="1" x="114.3" y="68.58" rot="R90"/>
-<instance part="U$6" gate="G$1" x="-58.42" y="-73.66"/>
-<instance part="TTL1" gate="G$1" x="27.94" y="58.42"/>
-<instance part="485-2" gate="G$1" x="27.94" y="-20.32"/>
+<instance part="U$6" gate="G$1" x="-58.42" y="-73.66">
+<attribute name="FARNELL" x="-58.42" y="-73.66" size="1.778" layer="96" display="off"/>
+</instance>
+<instance part="TTL1" gate="G$1" x="27.94" y="58.42">
+<attribute name="FARNELL" x="27.94" y="58.42" size="1.778" layer="96" display="off"/>
+</instance>
+<instance part="485-2" gate="G$1" x="27.94" y="-20.32">
+<attribute name="FARNELL" x="27.94" y="-20.32" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="GND3" gate="1" x="12.7" y="-10.16" rot="R180"/>
-<instance part="MAX1" gate="A" x="68.58" y="-12.7"/>
+<instance part="MAX1" gate="A" x="68.58" y="-12.7">
+<attribute name="FARNELL" x="68.58" y="-12.7" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="GND4" gate="1" x="48.26" y="-27.94"/>
 <instance part="P+2" gate="VCC" x="48.26" y="-5.08"/>
 <instance part="P+3" gate="VCC" x="104.14" y="0"/>
@@ -2635,10 +2675,16 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <instance part="R16" gate="G$1" x="93.98" y="-2.54" rot="R90"/>
 <instance part="R17" gate="G$1" x="106.68" y="7.62" rot="R180"/>
 <instance part="GND7" gate="1" x="114.3" y="7.62" rot="R90"/>
-<instance part="TTL2" gate="G$1" x="27.94" y="-2.54"/>
-<instance part="485-3" gate="G$1" x="27.94" y="-81.28"/>
+<instance part="TTL2" gate="G$1" x="27.94" y="-2.54">
+<attribute name="FARNELL" x="27.94" y="-2.54" size="1.778" layer="96" display="off"/>
+</instance>
+<instance part="485-3" gate="G$1" x="27.94" y="-81.28">
+<attribute name="FARNELL" x="27.94" y="-81.28" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="GND8" gate="1" x="12.7" y="-71.12" rot="R180"/>
-<instance part="MAX2" gate="A" x="68.58" y="-73.66"/>
+<instance part="MAX2" gate="A" x="68.58" y="-73.66">
+<attribute name="FARNELL" x="68.58" y="-73.66" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="GND9" gate="1" x="48.26" y="-88.9"/>
 <instance part="P+12" gate="VCC" x="48.26" y="-66.04"/>
 <instance part="P+13" gate="VCC" x="104.14" y="-60.96"/>
@@ -2657,7 +2703,9 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <instance part="R22" gate="G$1" x="93.98" y="-63.5" rot="R90"/>
 <instance part="R23" gate="G$1" x="106.68" y="-53.34" rot="R180"/>
 <instance part="GND19" gate="1" x="114.3" y="-53.34" rot="R90"/>
-<instance part="TTL3" gate="G$1" x="27.94" y="-63.5"/>
+<instance part="TTL3" gate="G$1" x="27.94" y="-63.5">
+<attribute name="FARNELL" x="27.94" y="-63.5" size="1.778" layer="96" display="off"/>
+</instance>
 <instance part="R8S3" gate="G$1" x="12.7" y="43.18" rot="R180"/>
 <instance part="GPIO2" gate="G$1" x="-25.4" y="-27.94"/>
 </instances>
@@ -2722,7 +2770,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <segment>
 <pinref part="TTL1" gate="G$1" pin="1"/>
 <wire x1="30.48" y1="63.5" x2="22.86" y2="63.5" width="0.1524" layer="91"/>
-<label x="10.16" y="63.5" size="1.778" layer="95"/>
+<label x="17.78" y="63.5" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="485-2" gate="G$1" pin="1"/>
@@ -2750,7 +2798,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <segment>
 <pinref part="TTL2" gate="G$1" pin="1"/>
 <wire x1="30.48" y1="2.54" x2="22.86" y2="2.54" width="0.1524" layer="91"/>
-<label x="10.16" y="2.54" size="1.778" layer="95"/>
+<label x="17.78" y="2.54" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="485-3" gate="G$1" pin="1"/>
@@ -2778,7 +2826,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <segment>
 <pinref part="TTL3" gate="G$1" pin="1"/>
 <wire x1="30.48" y1="-58.42" x2="22.86" y2="-58.42" width="0.1524" layer="91"/>
-<label x="10.16" y="-58.42" size="1.778" layer="95"/>
+<label x="17.78" y="-58.42" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="MAPLE" gate="G$1" pin="GND"/>
@@ -2897,7 +2945,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <segment>
 <pinref part="TTL1" gate="G$1" pin="2"/>
 <wire x1="30.48" y1="60.96" x2="22.86" y2="60.96" width="0.1524" layer="91"/>
-<label x="10.16" y="60.96" size="1.778" layer="95"/>
+<label x="12.7" y="60.96" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="485-2" gate="G$1" pin="2"/>
@@ -2907,7 +2955,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <segment>
 <pinref part="TTL2" gate="G$1" pin="2"/>
 <wire x1="30.48" y1="0" x2="22.86" y2="0" width="0.1524" layer="91"/>
-<label x="10.16" y="0" size="1.778" layer="95"/>
+<label x="12.7" y="0" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="485-3" gate="G$1" pin="2"/>
@@ -2917,7 +2965,7 @@ These are standard reverse protection diodes and small signal diodes. SMA packag
 <segment>
 <pinref part="TTL3" gate="G$1" pin="2"/>
 <wire x1="30.48" y1="-60.96" x2="22.86" y2="-60.96" width="0.1524" layer="91"/>
-<label x="10.16" y="-60.96" size="1.778" layer="95"/>
+<label x="12.7" y="-60.96" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="DXL1_TX" class="0">
