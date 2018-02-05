@@ -56,8 +56,9 @@ void setup()
     
     // Add the Serial-forward dynamixel device as a slave
     dxl_serial_init(&slaves[k++], 1);
-    dxl_serial_init(&slaves[k++], 2);
-    dxl_serial_init(&slaves[k++], 3);
+    // We can only use one bus with this version (see other git branch for multi bus)
+    //dxl_serial_init(&slaves[k++], 2);
+    //dxl_serial_init(&slaves[k++], 3);
 
     // Add the ADC dynamixel on the bus, id 240
     // dxl_adc_init(&slaves[k++], 240);
@@ -67,7 +68,7 @@ void setup()
 
     // Adding pins
     dxl_pins_init(&slaves[k++], 242);
-    
+
     // Add a magnetic coder on the bus, ID 235
     // dxl_magnetic_coder_init(&slaves[k++], 3, 235);
 

@@ -10,28 +10,28 @@
 // Maximum parameters in a packet
 #define DXL_MAX_PARAMS  240
 
+
 typedef unsigned char ui8;
 
 /**
  * A dynamixel packet
  */
 struct dxl_packet {
-    ui8 id; 
-    union {
-        ui8 instruction;
-        ui8 error;
-    };  
+    ui8 id;
+    ui8 instruction;
+    ui8 error;
     ui8 parameter_nb;
-    ui8 parameters[DXL_MAX_PARAMS+30];
+    ui8 parameters[DXL_MAX_PARAMS];
     bool process;
-    ui8 dxl_state;
+    int dxl_state;
+    int crc16;
 };
 
 void dxl_packet_init(volatile struct dxl_packet *packet);
 void dxl_packet_push_byte(volatile struct dxl_packet *packet, ui8 b);
 int dxl_write_packet(volatile struct dxl_packet *packet, ui8 *buffer);
 void dxl_copy_packet(volatile struct dxl_packet *from, volatile struct dxl_packet *to);
-ui8 dxl_compute_checksum(volatile struct dxl_packet *packet);
+unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr, unsigned short data_blk_size);
 
 /**
  * A Dynamixel Device which is on the bus
