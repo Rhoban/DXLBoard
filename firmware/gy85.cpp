@@ -120,21 +120,21 @@ init_error:
     gy85initialized = false;
 }
 
-void magn_update(i2c_dev *dev, struct gy85_value *values)
+bool magn_update(i2c_dev *dev, struct gy85_value *values)
 {
-    if (!gy85initialized) return;
+    if (!gy85initialized) return false;
 
     packet.addr = MAGN_ADDR;
     packet.flags = 0;
     packet.data = magn_req;
     packet.length = 1;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return false;
 
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return false;
 
     values->magn_x = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     values->magn_x = VALUE_SIGN(values->magn_x, 16);
@@ -142,23 +142,25 @@ void magn_update(i2c_dev *dev, struct gy85_value *values)
     values->magn_y = VALUE_SIGN(values->magn_y, 16);
     values->magn_z = ((buffer[4]&0xff)<<8)|(buffer[5]&0xff);
     values->magn_z = VALUE_SIGN(values->magn_z, 16);
+
+    return true;
 }
 
-void gyro_update(i2c_dev *dev, struct gy85_value *values)
+bool gyro_update(i2c_dev *dev, struct gy85_value *values)
 {
-    if (!gy85initialized) return;
+    if (!gy85initialized) return false;
 
     packet.addr = GYRO_ADDR;
     packet.flags = 0;
     packet.data = gyro_req;
     packet.length = 1;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return false;
 
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return false;
 
     values->gyro_x = ((buffer[0]&0xff)<<8)|(buffer[1]&0xff);
     values->gyro_x = VALUE_SIGN(values->gyro_x, 16);
@@ -166,23 +168,25 @@ void gyro_update(i2c_dev *dev, struct gy85_value *values)
     values->gyro_y = VALUE_SIGN(values->gyro_y, 16);
     values->gyro_z = ((buffer[4]&0xff)<<8)|(buffer[5]&0xff);
     values->gyro_z = VALUE_SIGN(values->gyro_z, 16);
+
+    return true;
 }
 
-void acc_update(i2c_dev *dev, struct gy85_value *values)
+bool acc_update(i2c_dev *dev, struct gy85_value *values)
 {
-    if (!gy85initialized) return;
+    if (!gy85initialized) return false;
 
     packet.addr = ACC_ADDR;
     packet.flags = 0;
     packet.data = acc_req;
     packet.length = 1;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return false;
 
     char buffer[6];
     packet.flags = I2C_MSG_READ;
     packet.data = (uint8*)buffer;
     packet.length = 6;
-    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return;
+    if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) return false;
 
     values->acc_x = ((buffer[1]&0xff)<<8)|(buffer[0]&0xff);
     values->acc_x = VALUE_SIGN(values->acc_x, 16);
@@ -190,17 +194,21 @@ void acc_update(i2c_dev *dev, struct gy85_value *values)
     values->acc_y = VALUE_SIGN(values->acc_y, 16);
     values->acc_z = ((buffer[5]&0xff)<<8)|(buffer[4]&0xff);
     values->acc_z = VALUE_SIGN(values->acc_z, 16);
+
+    return true;
 }
 
-void gy85_update(i2c_dev *dev, struct gy85_value *value, int sensor)
+bool gy85_update(i2c_dev *dev, struct gy85_value *value, int sensor)
 {
     if (!gy85initialized) {
         gy85_init(dev);
     } else {
         // XXX: We should populate value with the last known value, even if
         // it fails
-        if (sensor == 0) gyro_update(dev, value);
-        if (sensor == 1) magn_update(dev, value);
-        if (sensor == 2) acc_update(dev, value);
+        bool ok = false;
+        if (sensor == 0) ok = gyro_update(dev, value);
+        if (sensor == 1) ok = magn_update(dev, value);
+        if (sensor == 2) ok = acc_update(dev, value);
+        return ok;
     }
 }

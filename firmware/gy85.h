@@ -15,6 +15,6 @@ struct __attribute__((__packed__)) gy85_value
 
 // Initializing
 void gy85_init(i2c_dev *dev);
-void gy85_update(i2c_dev *dev, struct gy85_value *value, int sensor);
+bool gy85_update(i2c_dev *dev, struct gy85_value *value, int sensor);
 
 #endif

@@ -46,14 +46,15 @@ void gy85_tick(struct gy85 *gy85)
     int delta = now-gy85->lastUpdate;
 
     if (gy85->state < 3) {
-        gy85_update(gy85->dev, &gy85->values[gy85->pos], gy85->state);
-        gy85->state++;
-        if (gy85->state >= 3) {
-            gy85->sequence++;
-            gy85->values[gy85->pos].sequence = gy85->sequence;
-            gy85->pos++;
-            if (gy85->pos >= BUFFERS) {
-                gy85->pos = 0;
+        if (gy85_update(gy85->dev, &gy85->values[gy85->pos], gy85->state)) {
+            gy85->state++;
+            if (gy85->state >= 3) {
+                gy85->sequence++;
+                gy85->values[gy85->pos].sequence = gy85->sequence;
+                gy85->pos++;
+                if (gy85->pos >= BUFFERS) {
+                    gy85->pos = 0;
+                }
             }
         }
     } else {
