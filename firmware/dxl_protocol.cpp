@@ -32,35 +32,40 @@ void dxl_process(
                 break;
 
             case DXL_SYNC_WRITE: {
-                                     ui8 addr = packet->parameters[0];
-                                     int length = packet->parameters[1] + 1;
-                                     int K = (packet->parameter_nb-2) / length;
-                                     int i;
+                ui8 addr = packet->parameters[0];
+                int length = packet->parameters[1] + 1;
+                int K = (packet->parameter_nb-2) / length;
+                int i;
 
-                                     for (i=0; i<K; i++) {
-                                         if (dxl_check_id(device, packet->parameters[2+i*length])) {
-                                             dxl_write_data(device, packet->parameters[2+i*length],
-                                                     addr,
-                                                     (ui8 *)&packet->parameters[2+i*length+1],
-                                                     (ui8)(length-1));
-                                         }
-                                     }
-                                 }
-                                 break;
+                for (i=0; i<K; i++) {
+                    if (dxl_check_id(device, packet->parameters[2+i*length])) {
+                        dxl_write_data(device, packet->parameters[2+i*length],
+                             addr,
+                             (ui8 *)&packet->parameters[2+i*length+1],
+                             (ui8)(length-1));
+                    }
+                }
+            }
+            break;
 
             case DXL_READ_DATA:
-                                 // Read some data
-                                 if (packet->id != DXL_BROADCAST) {
-                                     ui8 addr = packet->parameters[0];
-                                     unsigned int length = packet->parameters[1];
+                // Read some data
+                if (packet->id != DXL_BROADCAST) {
+                    // adress has two bytes
+                    ui8 addr = packet->parameters[0];
+                    addr += (packet->parameters[1]<<8);
+                    //length has two bytes
+                    unsigned int length = packet->parameters[2];
+                    length += (packet->parameters[3]<<8);
 
-                                     if (length < sizeof(packet->parameters)) {
-                                         device->packet.process = true;
-                                         dxl_read_data(device, packet->id, addr, (ui8 *)device->packet.parameters, length, (ui8 *)&device->packet.error);
 
-                                         device->packet.parameter_nb = length;
-                                     }
-                                 }
+                    if (length < sizeof(packet->parameters)) {
+                        device->packet.process = true;
+                        dxl_read_data(device, packet->id, addr, (ui8 *)device->packet.parameters, length, (ui8 *)&device->packet.error);
+
+                        device->packet.parameter_nb = length;
+                 }
+            }
         }
     }
 }

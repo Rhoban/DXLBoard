@@ -13,8 +13,9 @@ static void dxl_usb_serial_process(volatile struct dxl_device *self, volatile st
 {
     // If a packet is available for process, sends it through the USB adapter
     ui8 buffer[DXL_BUFFER_SIZE];
+    // we always send status packages to the master
+    packet->instruction = 0x55;
     int n = dxl_write_packet(packet, buffer);
-
     SerialUSB.write(buffer, n);
 }
 

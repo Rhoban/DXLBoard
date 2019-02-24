@@ -111,6 +111,7 @@ void dxl_gy85_init(volatile struct dxl_device *device, ui8 id, i2c_dev *dev)
     device->process = dxl_gy85_process;
     device->data = (void *)gy85;
     device->tick = gy85_tick;
+    device->bus_index = 0;
 
     gy85_begin(gy85, dev);
 

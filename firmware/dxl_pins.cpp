@@ -44,6 +44,7 @@ void dxl_pins_init(volatile struct dxl_device *device, ui8 id)
     dxl_device_init(device);
     device->process = dxl_pins_process;
     device->data = (void *)registers;
+    device->bus_index = 0;
     
     for (int k=0; k<NB_PINS; k++) {
         pinMode(pins[k], INPUT_PULLUP);

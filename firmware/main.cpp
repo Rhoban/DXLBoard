@@ -55,19 +55,26 @@ void setup()
     // dxl_servo_init(&slaves[k++], 16, 221);
     
     // Add the Serial-forward dynamixel device as a slave
-    dxl_serial_init(&slaves[k++], 1);
-    dxl_serial_init(&slaves[k++], 2);
-    dxl_serial_init(&slaves[k++], 3);
+    // also save a point on each of them
+    dxl_serial_init(&slaves[k], 1);
+    bus.bus1 = &slaves[k];
+    k++;
+    dxl_serial_init(&slaves[k], 2);
+    bus.bus2 = &slaves[k];
+    k++;
+    dxl_serial_init(&slaves[k], 3);
+    bus.bus3 = &slaves[k];
+    k++;
 
     // Add the ADC dynamixel on the bus, id 240
     // dxl_adc_init(&slaves[k++], 240);
 
     // Add the IMU dynamixel, id 241, port Serial2
-    dxl_gy85_init(&slaves[k++], 241, I2C1);
+    //dxl_gy85_init(&slaves[k++], 241, I2C1);
 
     // Adding pins
-    dxl_pins_init(&slaves[k++], 242);
-    
+    //dxl_pins_init(&slaves[k++], 242);
+
     // Add a magnetic coder on the bus, ID 235
     // dxl_magnetic_coder_init(&slaves[k++], 3, 235);
 

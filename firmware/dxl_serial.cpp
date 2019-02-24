@@ -14,7 +14,6 @@
 
 // Devices allocation
 static bool serialInitialized = false;
-static uint8_t devicePorts[254];
 
 // Device data
 struct serial
@@ -28,20 +27,6 @@ struct serial
     // Transmission buffer
     char outputBuffer[DXL_BUFFER_SIZE];
 
-    // Number of bytes to send
-    ui8 toSend;
-    // IDs of devices that we should sync read
-    ui8 syncReadIds[64];
-    // Offset of the data in the packet
-    ui8 syncReadOffsets[64];
-    // The count of devices that we should sync read
-    ui8 syncReadCount;
-    // Current device that is read
-    ui8 syncReadCurrent;
-    // Packet use for sync read
-    struct dxl_packet syncReadPacket;
-    // Timestamp of the starting
-    uint32_t syncReadStart;
     // Timestamp for sending data
     uint32_t packetSent;
 
@@ -53,6 +38,13 @@ struct serial
 
     // Registers
     struct dxl_registers registers;
+
+    int bytes_to_read;
+    bool read_mode;
+    bool pingMode;
+    ui8 returnBuffer[DXL_BUFFER_SIZE];
+    int returnBytes;
+
 };
 
 // Ports that are online
@@ -67,7 +59,7 @@ bool syncReadMode = false;
 int syncReadDevices = 0;
 // The sync read timer (incremented by 10µs step) that can be used
 // for timeout
-HardwareTimer syncReadTimer(2);
+//HardwareTimer syncReadTimer(2);
 // Address to sync read
 ui8 syncReadAddr = 0;
 // Length to sync read
@@ -82,7 +74,6 @@ static void serial_received(struct serial *serial)
     serial->dmaEvent = false;
     serial->txComplete = true;
     receiveMode(serial);
-    serial->syncReadStart = syncReadTimer.getCount();
 }
 
 static void tc_event(struct serial *serial)
@@ -232,25 +223,7 @@ void sendSerialPacket(struct serial *serial, volatile struct dxl_packet *packet)
     receiveMode(serial);
 #endif
 }
-          
-/**
- * Sends the next sync read packet
- */
-void syncReadSendPacket(struct serial *serial)
-{
-    // Sending the read packet on the bus
-    struct dxl_packet readPacket;
-    readPacket.instruction = DXL_READ_DATA;
-    readPacket.parameter_nb = 2;
-    readPacket.id = serial->syncReadIds[serial->syncReadCurrent];
-    readPacket.parameters[0] = syncReadAddr;
-    readPacket.parameters[1] = syncReadLength;
-    sendSerialPacket(serial, &readPacket);
 
-    // Resetting the receive packet
-    serial->syncReadPacket.dxl_state = 0;
-    serial->syncReadPacket.process = false;
-}
 
 /**
  * Ticking
@@ -258,90 +231,53 @@ void syncReadSendPacket(struct serial *serial)
 static void dxl_serial_tick(volatile struct dxl_device *self) 
 {
     struct serial *serial = (struct serial*)self->data;
-    static int baudrate = DXL_DEFAULT_BAUDRATE;
-
+/*
     // Timeout on sending packet, this should never happen
-    if (!serial->txComplete && ((millis() - serial->packetSent) > 3)) {
+    if (!serial->txComplete && ((millis() - serial->packetSent) > 3)) { //todo check if it works without
         serial_received(serial);
-    }
-
-    /*
-    if (!serial->txComplete) {
-        if (serial->dmaEvent) {
-            // DMA completed
-            serial->dmaEvent = false;
-            serial->txComplete = true;
-            //serial->port->waitDataToBeSent();
-            receiveMode(serial);
-            serial->syncReadStart = syncReadTimer.getCount();
-        }
-    } 
-    */
- 
+    }*/
+/*
     if (serial->txComplete) {
-        if (syncReadMode) {
-            bool processed = false;
+        // Reading data that come from the serial bus
+        /*while (serial->port->available() && !self->packet.process) {
+            dxl_packet_push_byte_nocrc(&self->packet, serial->port->read());
+        }*/
+        /*while (serial->port->available()){
+            serial->return_buffer[serial->number_of_rec_bytes] = serial->port->read();
+            serial->number_of_rec_bytes++;
+        }
+    }*/
 
-            if (syncReadDevices <= 0 && syncReadResponse == &self->packet) {
-                // The process is over, no devices are currently trying to get packet and we
-                // are the device that will respond
-                syncReadResponse->process = true;
-                syncReadMode = false;
-            } else if (serial->syncReadCount) {
-                if (serial->syncReadCurrent == 0xff) {
-                    // Sending the first packet
-                    serial->syncReadCurrent = 0;
-                    syncReadSendPacket(serial);
-                } else {
-                    // Reading available data from the port
-                    while (serial->port->available() && !serial->syncReadPacket.process) {
-                        dxl_packet_push_byte(&serial->syncReadPacket, serial->port->read());
-                    }
-                    if (serial->syncReadPacket.process && serial->syncReadPacket.parameter_nb == syncReadLength) {
-                        // The packet is OK, copying data to the response at correct offset
-                        ui8 i;
-                        ui8 off = serial->syncReadOffsets[serial->syncReadCurrent]*(syncReadLength+1);
-                        syncReadResponse->parameters[off] = serial->syncReadPacket.error;
-                        for (i=0; i<syncReadLength; i++) {
-                            syncReadResponse->parameters[off+1+i] = serial->syncReadPacket.parameters[i];
-                        }
-                        processed = true;
-                    } else if (syncReadTimer.getCount()-serial->syncReadStart > 65) {
-                        // The timeout is reached, answer with code 0xff
-                        ui8 off = serial->syncReadOffsets[serial->syncReadCurrent]*(syncReadLength+1);
-                        syncReadResponse->parameters[off] = 0xff;
-                        processed = true;
-                    }
-                    if (processed) {
-                        serial->syncReadCurrent++;
-                        if (serial->syncReadCurrent >= serial->syncReadCount) {
-                            // The process is over for this bus
-                            syncReadDevices--;
-                            serial->syncReadCount = 0;
-                        } else {
-                            // Sending the next packet
-                            syncReadSendPacket(serial);
-                        }
-                    }
-                }
+    if(serial->read_mode){
+        //we are expecting bytes
+        if(serial->bytes_to_read > serial->returnBytes){
+            //we didnt read enough yet
+            if(serial->port->available()){
+                //SerialUSB.println("Reading");
+                serial->returnBuffer[serial->returnBytes] = serial->port->read();
+                serial->returnBytes++;
             }
-        } else {
-            if (baudrate != usb_cdcacm_get_baud()) {
-                // baudrate = usb_cdcacm_get_baud();
-                // initSerial(serial, baudrate);
-            }
-
-            // Reading data that come from the serial bus
-            while (serial->port->available() && !self->packet.process) {
-                dxl_packet_push_byte(&self->packet, serial->port->read());
-                if (self->packet.process) {
-                    // A packet is coming from our bus, noting it in the devices allocation
-                    // table
-                    devicePorts[self->packet.id] = serial->index;
-                }
-            }
+        }else{
+            //we read all bytes, now send them
+            //SerialUSB.println("write");
+            SerialUSB.write(serial->returnBuffer, serial->returnBytes);
+            serial->returnBytes=0;
+            serial->bytes_to_read=0;
+            serial->read_mode =0;
         }
     }
+
+    if(serial->pingMode){
+        //we are in ping mode, so we actually have to read the bytes
+        while (serial->port->available() && !self->packet.process) {
+
+            if(self->bus_index == 3){
+                SerialUSB.println("availible");
+            }
+            dxl_packet_push_byte_nocrc(&self->packet, serial->port->read());
+        }
+    }
+
 }
 
 /**
@@ -352,46 +288,38 @@ static void process(volatile struct dxl_device *self, volatile struct dxl_packet
     struct serial *serial = (struct serial*)self->data;
     dxl_serial_tick(self);
 
-    if (serial->txComplete && !syncReadMode) {
-        if (packet->instruction == DXL_SYNC_READ && packet->parameter_nb > 2) {
-            ui8 i;
-            syncReadMode = true;
-            syncReadAddr = packet->parameters[0];
-            syncReadLength = packet->parameters[1];
-            syncReadDevices = 0;
-            ui8 total = 0;
+    serial->pingMode=false;
+    serial->read_mode=false;
 
-            for (i=0; (i+2)<packet->parameter_nb; i++) {
-                ui8 id = packet->parameters[i+2];
+    if(packet->instruction == DXL_WRITE_DATA || packet->instruction == DXL_SYNC_WRITE){
+        //its a write so we dont expect to read anything
+    }else if(packet->instruction == DXL_PING) {
+        //its a broadcast ping, so lets go to ping mode
+        serial->pingMode = true;
+    }else{
+        serial->read_mode = true;
+        serial->returnBytes = 0;
+        //read all old bytes which are remaining on the port, to make sure that there is nothing left
+        while (serial->port->available()){
+            serial->port->read();
+        }
 
-                if (devicePorts[id]) {
-                    struct serial *port = serials[devicePorts[id]];
-                    if (port->syncReadCount == 0) {
-                        port->syncReadCurrent = 0xff;
-                        syncReadDevices++;
-                    }
-                    port->syncReadIds[port->syncReadCount] = packet->parameters[i+2];
-                    port->syncReadOffsets[port->syncReadCount] = i;
-                    port->syncReadCount++;
-                    total++;
-                }
-            }
-
-            syncReadTimer.refresh();
-            syncReadResponse = (struct dxl_packet*)&self->packet;
-            syncReadResponse->error = 0;
-            syncReadResponse->parameter_nb = (syncReadLength+1)*total;
-            syncReadResponse->process = false;
-            syncReadResponse->id = packet->id;
-        } else {
-            // Forwarding the packet to the serial bus
-            if (packet->id == DXL_BROADCAST || packet->id < 200) {
-                self->packet.dxl_state = 0;
-                self->packet.process = false;
-                sendSerialPacket(serial, packet);
-            }
+        if(packet->id == DXL_BROADCAST) {
+            //its a sync read
+            int data_length = packet->parameters[2] + (packet->parameters[3] << 8);
+            // we expect number of packages * (data lenght + fixed status bytes)
+            serial->bytes_to_read = (packet->parameter_nb -4) * (data_length +11);
+        }else {
+            //normal read
+            int data_length = packet->parameters[2] + (packet->parameters[3] << 8);
+            serial->bytes_to_read = data_length + 11;
         }
     }
+
+    self->packet.dxl_state = 0;
+    self->packet.process = false;
+    sendSerialPacket(serial, packet);
+
 }
 
 void dxl_serial_init(volatile struct dxl_device *device, int index)
@@ -404,6 +332,7 @@ void dxl_serial_init(volatile struct dxl_device *device, int index)
     device->data = (void *)serial;
     device->tick = dxl_serial_tick;
     device->process = process;
+    device->bus_index = index;
 
     serial->index = index;
     serial->txComplete = true;
@@ -422,10 +351,8 @@ void dxl_serial_init(volatile struct dxl_device *device, int index)
         serial->direction = DIRECTION3;
         serial->channel = DMA_CH2;
     }
-            
-    serial->syncReadCurrent = 0xff;
-    serial->syncReadCount = 0;
-
+    serial->bytes_to_read = 0;
+    serial->returnBytes = 0;
     initSerial(serial);
 
     if (!serialInitialized) {
@@ -438,16 +365,11 @@ void dxl_serial_init(volatile struct dxl_device *device, int index)
         usart2_tc_handler = usart2_tc;
         usart3_tc_handler = usart3_tc;
 
-        // Reset allocation
-        for (unsigned int k=0; k<sizeof(devicePorts); k++) {
-            devicePorts[k] = 0;
-        }
-
         // Initialize sync read timer (1 step = 10uS)
-        syncReadTimer.pause();
+        /*syncReadTimer.pause();
         syncReadTimer.setPrescaleFactor(CYCLES_PER_MICROSECOND*10);
         syncReadTimer.setOverflow(0xffff);
         syncReadTimer.refresh();
-        syncReadTimer.resume();
+        syncReadTimer.resume();*/
     }
 }
