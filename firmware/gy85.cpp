@@ -53,15 +53,18 @@ static uint8 gyro_reset[] = {0x3e, 0x80};
 static uint8 gyro_scale[] = {0x16, 0b00011010};
 static uint8 gyro_100hz[] = {0x15, 0x09};
 static uint8 gyro_200hz[] = {0x15, 0x04};
+static uint8 gyro_1000hz[] = {0x15, 0x00};
 static uint8 gyro_pll[] = {0x3e, 0x00};
 static uint8 gyro_req[] = {0x1d};
 
 // Accelerometer packets
 static uint8 acc_measure[] = {0x2d, 0x08};
-static uint8 acc_resolution[] = {0x31, 0x08};
+static uint8 acc_resolution[] = {0x31, 0x0b};
 static uint8 acc_100hz[] = {0x2c, 0x0a};
 static uint8 acc_200hz[] = {0x2c, 0x0b};
+static uint8 acc_1600hz[] = {0x2c, 0x0e};
 static uint8 acc_req[] = {0x32};
+
 
 // Magnetometer packets
 /*static uint8 magn_continuous[] = {0x02, 0x00};
@@ -98,7 +101,7 @@ void gy85_init(i2c_dev *dev)
     packet.data = acc_resolution;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
-    packet.data = acc_200hz;
+    packet.data = acc_1600hz;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
 
     // Initializing gyroscope
@@ -110,7 +113,7 @@ void gy85_init(i2c_dev *dev)
 
     packet.data = gyro_scale;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
-    packet.data = gyro_200hz;
+    packet.data = gyro_1000hz;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
     packet.data = gyro_pll;
     if (i2c_master_xfer_reinit(dev, &packet, 1, I2C_TIMEOUT) != 0) goto init_error;
