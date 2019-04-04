@@ -16,8 +16,9 @@ void dxl_process(
             case DXL_PING: 
                 // Answers the ping
                 if (packet->id != DXL_BROADCAST) {
+                    device->packet.instruction = 0x55;
                     device->packet.error = DXL_NO_ERROR;
-                    device->packet.parameter_nb = 0;
+                    device->packet.parameter_nb = 2;
                     device->packet.process = true;
                 }
                 break;
