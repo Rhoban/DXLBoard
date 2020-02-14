@@ -21,6 +21,9 @@ make install
 
 `make install` will send the program to the board using the DFU maple bootloader.
 
+# THIS ONLY WORKS WITH UBUNTU 16.04 WE DON'T KNOW WHY
+
+
 ## How does it works
 
 The board will appear as a virtual serial port (typically `/dev/ttyACM0` on linux).
